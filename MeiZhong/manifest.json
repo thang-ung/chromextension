@@ -1,0 +1,45 @@
+{
+   "author": "thang van ung",
+   "background": {
+      "page": "background.html"
+   },
+   "browser_action": {
+      "default_icon": "images/each-hi.png",
+      "default_title": "MeiZhong"
+   },
+   "content_scripts": [ {
+      "all_frames": true,
+      "css": [ "css/common.css",
+            "css/jstd.css",
+            "css/zhosteno.css" ],
+      "js": [ "js/jquery-3.3.1.min.js",
+            "js/jquery-ui.min.js",
+            "js/zhoChat.js",
+            "js/utils.js",
+            "js/flexbug.js",
+            "js/ellipser.js",
+            "js/parakeys.js",
+            "js/zhoChat.js",
+            "js/stenopad.js",
+            "content.js"
+         ],
+      "matches": [ "\u003Call_urls>" ]
+   } ],
+   "description": "Any Chinese word...",
+   "homepage_url": "https://github.com/thang-ung/",
+   "icons": {
+      "128": "images/each.png",
+      "16": "images/each.png",
+      "48": "images/each.png"
+   },
+   "manifest_version": 2,
+   "name": "MeiZhong",
+   "options_ui": {
+      "open_in_tab": true,
+      "page": "options.html"
+   },
+   "permissions": [ "contextMenus", "tabs" ],
+   "short_name": "MeiZhong",
+   "version": "1.0.0",
+   "web_accessible_resources": [ "css/*", "js/*", "images/*" ]
+}

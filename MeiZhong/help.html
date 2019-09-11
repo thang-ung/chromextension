@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Chinese Glyph Help</title>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" type="text/css" href="css/bootstrap.min.css" />
+    <link rel="stylesheet" type="text/css" href="css/common.css" />
+    <link>
+</head>
+<body>
+    <details open>
+        <ul>
+            <li>Click <mark style="font-weight:bold;">Left+right buttons</mark> will toggle (opens/closes) glyph pad</li>
+            <li><b>Middle</b> will toggle (opens/closes) glyph pad. On gesture pad, use three-finger click</li>
+            <li><b>Left</b> will load pad with associated glyphs</li>
+            <li><b>Right</b> will send the glyph to the input with focus, textarea with focus, or selectable text area where last clicked</li>
+        </ul>
+        <summary>Mouse buttons</summary>
+    </details>
+    <details open>
+        <ul>
+            <li>wheel <b>forward</b> (up) to move to next range / pad</li>
+            <li>wheel <b>forward</b> (up) while hovering a glyph of a "radical" pad to load pad with associated glyphs</li>
+            <li>wheel <b>backward</b> (down) to move back to previous pad</li>
+            <li>wheel <b>backward</b> with extra force to move back to first pad</li>
+			<li>wheel <b>backward</b> (down) <mark>+Shift-key</mark> to move to baseline --first pad of radicals</li>
+        </ul>
+        <summary>Mouse wheel</summary>
+    </details>
+    <details open>
+        <ul>
+            <li>INPUT texbox with focus</li>
+            <li>TEXTAREA with focus</li>
+            <li>element with attribute [<mark>contenteditable="true"</mark>] with focus</li>
+            <li><details>
+					<ul>
+						<li>SPAN</li>
+						<li>LABEL</li>
+						<li>DIV</li>
+						<li>any where there are texts</li>
+					</ul>
+                    <summary>... Selectables</summary>
+                </details>
+            </li>
+        </ul>
+        <summary>Output capable</summary>
+    </details>
+    <details open>
+		<ul>
+			<li><b>drag-and-drop</b> chinese glyph will load pad up with the range of glyphs where it belongs.</li>
+		</ul>
+        <summary>Input capable</summary>
+    </details>
+</body>
+</html>
