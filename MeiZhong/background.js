@@ -23,245 +23,193 @@
 
  Please do not change or remove any of the copyrights or links to web pages
  when modifying any of the files.
-
  */
 
 'use strict';
 
 import {Zhong} from "./js/czhong.js";
 
-let isEnabled = localStorage['enabled'] === '1';
 
 let isActivated = false;
+chrome.storage.sync.set({"active": isActivated});
 
-let tabIDs = {};
+chrome.browserAction.getBadgeText({}, (result)=>{ //extensions mgr retains badge text between on/off
+    isActivated =result ? true : false;
+    chrome.storage.sync.set({"active": isActivated});
+});
+
+
+const __configDefault ={
+     "showSimplify": true
+    ,"busyPage": true
+    ,"localStorageMemory": false
+    ,"ontoStorage": "." //default saves per glyph
+    ,"permitRemote": false
+    };
 
 let ctex;
 
 let __options = window.__options = {
-    context: JSON.parse(localStorage['context'] || '{}'),
+    context: Object.assign(__configDefault, JSON.parse(localStorage['context'] || '{}')),
 };
 
-function activateExtension(tabId, showHelp) {
-
-    isEnabled = true;
-    // values in localStorage are always strings
-    localStorage['enabled'] = '1';
-    console.log("new context");
-    if (!ctex) {
+function resume(tabId) {
+    if(!ctex){
          ctex =new Zhong();
+         ctex.clients ={};
     }
 
-    chrome.tabs.sendMessage(tabId, {
-        'type': 'enable',
-        'config': __options
+    chrome.runtime.onConnect.addListener((inf)=>{
+        console.log([tabId, inf]);
     });
 
-    if (showHelp) {
-        chrome.tabs.sendMessage(tabId, {
-            'type': 'showHelp'
-        });
-    }
-
-    chrome.browserAction.setBadgeBackgroundColor({
-        'color': [255, 0, 0, 255]
-    });
-
-    chrome.browserAction.setBadgeText({
-        'text': 'On'
-    });
-
-    chrome.contextMenus.create(
-        {
-            title: 'Show help in new tab',
-            onclick: function () {
-                let url = chrome.runtime.getURL('/help.html');
-                let tabID = tabIDs['help'];
-                if (tabID) {
-                    chrome.tabs.get(tabID, function (tab) {
-                        if (tab && (tab.url.substr(-9) === 'help.html')) {
-                            chrome.tabs.reload(tabID);
-                            chrome.tabs.update(tabID, {
-                                active: true
-                            });
-                        } else {
-                            chrome.tabs.create({
-                                url: url
-                            }, function (tab) {
-                                tabIDs['help'] = tab.id;
-                                chrome.tabs.reload(tab.id);
-                            });
-                        }
-                    });
-                } else {
-                    chrome.tabs.create(
-                        { url: url },
-                        function (tab) {
-                            tabIDs['help'] = tab.id;
-                            chrome.tabs.reload(tab.id);
-                        }
-                    );
-                }
-            }
-        }
-    );
-
-    isActivated = true;
+    chrome.browserAction.setBadgeBackgroundColor({'color': [0, 128, 200, 255]});
+    chrome.browserAction.setBadgeText({'text': 'On'});
+    chrome.storage.sync.set({"active": isActivated =true});
 }
 
-function deactivateExtension() {
-
-    isEnabled = false;
-    // values in localStorage are always strings
-    localStorage['enabled'] = '0';
+function suspend() {
+    chrome.storage.sync.set({"active": isActivated =false});
 
     ctex = undefined;
 
-    chrome.browserAction.setBadgeBackgroundColor({
-        'color': [0, 0, 0, 0]
-    });
-
-    chrome.browserAction.setBadgeText({
-        'text': ''
-    });
-
-    // Send a disable message to all tabs in all windows.
-    chrome.windows.getAll(
-        { 'populate': true },
-        function (windows) {
-            for (let i = 0; i < windows.length; ++i) {
-                let tabs = windows[i].tabs;
-                for (let j = 0; j < tabs.length; ++j) {
-                    chrome.tabs.sendMessage(tabs[j].id, {
-                        'type': 'disable'
-                    });
-                }
-            }
-        }
-    );
+    chrome.browserAction.setBadgeBackgroundColor({'color': [0, 0, 0, 0]});
+    chrome.browserAction.setBadgeText({'text': ''});
 
     chrome.contextMenus.removeAll();
     isActivated = false;
 }
 
-function activateExtensionToggle(currentTab) {
-    if (isActivated) {
-        deactivateExtension();
-    } else {
-        activateExtension(currentTab.id, true);
+function togglesSuspend(currentTab) {
+    if(isActivated){
+        suspend();
+    }
+    else{
+        resume(currentTab.id);
     }
 }
 
-function enableTab(tabId) {
-    if (isEnabled) {
-
-        if (!isActivated) {
-            activateExtension(tabId, false);
-        }
-
-        chrome.tabs.sendMessage(tabId, {
-            'type': 'enable',
-            'config': __options
-        });
-    }
+function iscount(o, zeroalt=0) {
+    return Object.values(o).filter(x=>x).length || zeroalt;
 }
 
-function search(text) {
-    return text;
-}
+chrome.browserAction.onClicked.addListener(togglesSuspend);
 
-chrome.browserAction.onClicked.addListener(activateExtensionToggle);
+// chrome.tabs.onActivated.addListener(activeInfo => ...(activeInfo.tabId));
+// chrome.tabs.onUpdated.addListener((tabId, changeInfo)=>{
+//     if(changeInfo.status === 'complete')  ...(tabId);
+// });
 
-chrome.tabs.onActivated.addListener(activeInfo => enableTab(activeInfo.tabId));
-chrome.tabs.onUpdated.addListener(function (tabId, changeInfo) {
-    if (changeInfo.status === 'complete') {
-        enableTab(tabId);
-    }
-});
+window.onchange =(evt)=>{   //update from option page
+    localStorage['context'] =JSON.stringify(__options.context);
+    chrome.storage.sync.set({'context':__options.context});
+};
 
-chrome.runtime.onMessage.addListener(function (request, sender, response) {
-
-    let tabID;
-
-    switch (request.type) {
-
-        case 'search': {
-            let e = search(request.text);
-            response(e);
-            break;
-        }
-        case "page": {
-            let tiles =Zhong.pageOn(request.src, request.limitcount, request.isRadical);
-            response(tiles);
-            break;
-        }
-        case "glyphRootNode": {
-            let child =Zhong.glyphRootNodeEx(request.glyf)
-                , radical =child.parentNode.getAttribute('radical')
-                , strokes =child.getAttribute("n");
-            try{
-                let exclus=["1","s"]
-                    ,realrad =Zhong.radicals.reduce((incur, curr)=>{
-                        if(incur.length ===0)
-                            return curr.filter(x=>exclus.indexOf(x.alt) ===-1 && x.radical.indexOf(radical) >=0);
-                        else
-                            return incur;
-                    }, []);
-                response(Object.assign({strokes:strokes}, realrad[0]));
+chrome.runtime.onMessage.addListener(function(request, sender, response){
+    switch(request.type){
+    case "register":
+        if(typeof(request.op) ==='undefined'){
+            if(ctex){
+                delete ctex.clients[sender.tab.id];
+                chrome.browserAction.setBadgeText({'text': iscount(ctex.clients, 'On').toString()});
             }
-            catch(err){
-                console.log(err);
-            }
-            break;
         }
-        case "radicals":
-            response(Zhong.radicals);
-            break;
-        case "strokes":
-            response(Zhong.strokes.outerHTML);
-            break;
-        case "querySelectorAll":{
-            response(Zhong.querySelectorAll(request.selector));
-            break;
+        else if(ctex && isNaN(ctex.clients[sender.tab.id])){
+            ctex.clients[sender.tab.id] =request.op;
+            chrome.browserAction.setBadgeText({'text': iscount(ctex.clients, 'On').toString()});
+            response(1);
         }
-        case "qu":
-            if(request.qu)
-                ctex.qu =request.qu;
-            else
-                response(ctex.qu);
-            break;
-        case "hots":
-            response(ctex.hots);
-            break;
-        case "hottops":
-            response(ctex.hottops(request.k));
-            break;
-        case "shelves":
-            ctex.shelves();
-            response();
-            break;
-        case "rank":
-            response();
-            ctex.rank(request.glyph, request.radical);
-            break;
-        case "shelfup":
-            response(ctex.shelfup(request.radical));
-            break;
-        case "rx":
-            ctex.rx(resquest.force);
-            response(undefined)
-            break;
+        else
+            response(0);
+        break;
 
-        case 'open':
-            break;
+    case "state":
+        ctex.clients[sender.tab.id] =request.state;
+        chrome.browserAction.setBadgeText({'text': iscount(ctex.clients, 'On').toString()});
+        break;
 
-        case 'copy':
-            break;
 
-        case 'add':
-            break;
+    case 'search': {
+        let e = search(request.text);
+        response(e);
+        break;
+    }
+    case "page": {
+        let tiles =Zhong.pageOn(request.src, request.limitcount, request.isRadical);
+        response(tiles);
+        break;
+    }
+    case "glyphRootNode": {
+        let child =Zhong.glyphRootNodeEx(request.glyf)
+            , radical =child.parentNode.getAttribute('radical')
+            , strokes =child.getAttribute("n");
+        try{
+            let exclus=["1","s"]
+                ,realrad =Zhong.radicals.reduce((incur, curr)=>{
+                    if(incur.length ===0)
+                        return curr.filter(x=>exclus.indexOf(x.alt) ===-1 && x.radical.indexOf(radical) >=0);
+                    else
+                        return incur;
+                }, []);
+            response(Object.assign({strokes:strokes}, realrad[0]));
+        }
+        catch(err){
+            console.log(err);
+        }
+        break;
+    }
+    case "radicals":
+        response(Zhong.radicals);
+        break;
+    case "strokes":
+        response(Zhong.strokes.outerHTML);
+        break;
+    case "querySelectorAll":{
+        response(Zhong.querySelectorAll(request.selector));
+        break;
+    }
+    case "qu":
+        if(request.qu)
+            ctex.qu =request.qu;
+        else
+            response(ctex.qu);
+        break;
+    case "hots":
+        response(ctex.hots);
+        break;
+    case "hottops":
+        response(ctex.hottops(request.k));
+        break;
+    case "shelves":
+        ctex.shelves();
+        response();
+        break;
+    case "rank":
+        response();
+        ctex.rank(request.glyph, request.radical);
+        break;
+    case "shelfup":
+        response(ctex.shelfup(request.radical));
+        break;
+    case "onshelf":
+        response(ctex.onshelf(request.indices));
+        break;
+    case "shelfLengths":
+        response(ctex.shelfLengths(request.indices));
+        break;
+    case "rx":
+        ctex.rx(request.force);
+        response(undefined)
+        break;
 
-        default:
-        // ignore
+    // case 'open':
+    //     break;
+    // case 'copy':
+    //     break;
+    // case 'add':
+    //     break;
+
+    default:
+    // ignore
     }
 });

@@ -17,17 +17,18 @@ module.exports = {
 //var XMLParser = require('react-xml-parser');
 //var XMLParser = require('xmldom-qsa').DOMParser;
 const peekcount =27, peekmax =33;
+const xmremote ="http://justjillizm.com/";
 const xmroot =chrome.runtime.getURL("/");
 
 export class Zhong{
     static __selectorCached ={};
+    static fonal;
+    static ligans =Zhong.embellish();
     constructor(){
-        console.log([xmroot]);
         this._hots ={};
         this.className ={};
 
         Zhong.setGlyphs();
-        Zhong.rxBellish(this);
         this.rx();
         this.qu =[];
     }//end constructor
@@ -125,7 +126,10 @@ export class Zhong{
                 prv = hn;
             }
             if(isRadical){	//radicals
-                tiles[hn].push(src[0].radical +((src[0].alt || '0') ==='0' ? '':'~') +(src[0].r-1));
+                if((src[0].alt || '0') ==='0')
+                    tiles[hn].push(src[0].radical +(src[0].r-1));
+                else
+                    tiles[hn].unshift(src[0].radical +'~' +(src[0].r-1));
             }
             else if($src.cached){
                 tiles[hn].push(...$src.cached);
@@ -140,8 +144,11 @@ export class Zhong{
                     z =parseInt(($src.getAttribute ? $src.getAttribute('uend') : $src.uend) || a),
                     simpl =($src.getAttribute ? $src.getAttribute('alt') :$src.alt) ? '~':'';
 
-                if(isNaN(a))
-                    tiles[hn].push(($src.zi || $src.getAttribute('zi')) +simpl);
+                if(isNaN(a)){
+                    if(simpl)
+                        tiles[hn].unshift(($src.zi || $src.getAttribute('zi')) +simpl);
+                    else tiles[hn].push(($src.zi || $src.getAttribute('zi')) +simpl);
+                }
                 else if(z-a){
                         let lbl =[];
                         for(; a <= z; a++)
@@ -150,6 +157,8 @@ export class Zhong{
                         tiles[hn].push(...lbl);
                         w += (lbl.length -1);
                 }
+                else if(simpl)
+                    tiles[hn].unshift(unescape('%u'+a.toString(16)) +simpl);
                 else tiles[hn].push(unescape('%u'+a.toString(16)) +simpl);
             }
             src.shift();
@@ -194,49 +203,63 @@ export class Zhong{
         return Zhong.fonal;
     }
 
-    static rxBellish(wo){
-        wo = wo || this;
-        Promise.all([
+    static async embellish(){
+        let hots =[];
+        await Promise.all([
             fetch(xmroot +'xml/fonal.json').then(datx =>datx.json()),
             fetch(xmroot +'xml/ligan.json').then(datx =>datx.json())
         ])
         .then(([data, dataj])=>{
             Zhong.fonal =data;
-            for(let k in dataj){
-                if(dataj[k] >-9999)
-                    dataj[k] = wo._hots[k] || dataj[k];
-            }
-            wo._hots =Object.assign(wo._hots, dataj);
+            hots =dataj;
         })
         .catch(err=>console.log(err));
+        return hots;
+    }
+
+    async rxBellish(){
+        let dataj =await Zhong.ligans;
+        for(let k in dataj){
+            if(dataj[k] >-9999)
+                dataj[k] = this._hots[k] || dataj[k];
+        }
+        this._hots =Object.assign(this._hots, dataj);
     }//end rxBellish
 
     async rx(refresh =false){
         if(refresh);
         else if(Object.keys(this._hots).length) return;
 
-        await fetch(xmroot +'xml/_hots.json')
-        .then(response=>response.json())
-        .then(json=>{
-            this._hots=json;
-            this.hots2prio();
-            })
-        .catch(err=>{
-            this._hots={};
-        });
+        if(refresh)
+            this._hots ={};
+        else{
+            await fetch(xmroot +'xml/_hots.json')
+            .then(response=>response.json())
+            .then(json=>{
+                this._hots=json;
+                this.hots2prio();
+                })
+            .catch(err=>{
+                console.log("cannot read _hots.json.");
+                this._hots={};
+            });
+        }
 
         if(Object.keys(this._hots).length ===0){
             let rhead =new Headers({"Content-Type":"text/plain;charset=UTF-8"});
+            let xmpath =window.__options.context.permitRemote ? xmremote : xmroot;
+
             let whilst =Promise.all([
-                fetch(xmroot +'xml/omnibus-001.shu', rhead).then(datx =>datx.text()),
-                fetch(xmroot +'xml/omnibus-002.shu', rhead).then(datx =>datx.text()),
-                fetch(xmroot +'xml/omnibus-003.shu', rhead).then(datx =>datx.text()),
-                fetch(xmroot +'xml/omnibus.shu', rhead).then(datx =>{
+                fetch(xmpath +'xml/omnibus-001.shu', rhead).then(datx =>datx.text()).catch(err=>""),
+                fetch(xmpath +'xml/omnibus-002.shu', rhead).then(datx =>datx.text()).catch(err=>""),
+                fetch(xmpath +'xml/omnibus-003.shu', rhead).then(datx =>datx.text()).catch(err=>""),
+                fetch(xmpath +'xml/omnibus-004.shu', rhead).then(datx =>datx.text()).catch(err=>""),
+                fetch(xmpath +'xml/omnibus.shu', rhead).then(datx =>{
                     return datx.text()
                 }),
-                fetch(xmroot +'xml/皓镧传.shu', rhead).then(datx =>datx.text()),
-                fetch(xmroot +'xml/魏璎珞.jung', rhead).then(datx =>datx.text()),
-                fetch(xmroot +'xml/将夜.jung', rhead).then(datx =>datx.text())
+                fetch(xmpath +'xml/皓镧传.shu', rhead).then(datx =>datx.text()),
+                fetch(xmpath +'xml/魏璎珞.jung', rhead).then(datx =>datx.text()),
+                fetch(xmpath +'xml/将夜.jung', rhead).then(datx =>datx.text())
                 ]
             ).then((dats)=>{
                 let $serials ='';
@@ -250,6 +273,7 @@ export class Zhong{
             });
             await whilst;
         }
+        this.rxBellish();
         await this.shelves();
 
         console.log('Zhong ready.')
@@ -281,7 +305,7 @@ export class Zhong{
 
         this.hots2prio();
     }//end munchPrioti
-    
+
     hots2prio(){
         this.prio =[];
         for( var glif in this._hots )
@@ -330,6 +354,23 @@ export class Zhong{
         return this.qu;
     }//end shelves
 
+    shelfLengths(kary){
+        let lens ={};
+        kary.forEach(k=>{
+            if(this.qu[k]) lens[k] =this.qu[k].length;
+        });
+        return lens;
+    }
+
+    onshelf(kary){
+        let shelves ={};
+        kary.forEach(k=>{
+            if(this.qu[k]) shelves[k] = this.qu[k];
+        });
+        return shelves;
+    }
+
+
     shelfup(radical, threshold =3){
         let nod =Zhong.strokes.querySelector('[radical="'+radical+'"]');
         if(!nod){
@@ -367,7 +408,7 @@ export class Zhong{
     }//end shelfup
 
 
-    async rank(glyphs, $radical, threshold =3){
+    async rank(glyphs, radical, threshold =3){
         (glyphs.match(/([^\n\r ,\.\-;])/g) || []).forEach((glyph,i)=>{
             if(!this._hots[glyph] || this._hots[glyph] > -999){
                 let k = this._hots[glyph] = (this._hots[glyph] || 0) +1;
@@ -384,12 +425,12 @@ export class Zhong{
 
                 }//end switch
 
+                let rn;
                 try{
-                    let radic =$radical || Zhong.glyphRootNodeEx(glyph).parentNode;
+                    let radic =radical || Zhong.glyphRootNodeEx(glyph).parentNode;
 
-                    let rn;
-                    if(!radic || radic.length ===0
-                      || (rn =radic.r ? radic.r : document.evaluate('count(./preceding-sibling::*)+1', radic[0], null, XPathResult.ANY_TYPE, null).numberValue) ===0);
+                    if(!radic
+                      || (rn =radic.r ? radic.r : document.evaluate('count(./preceding-sibling::*)+1', radic, null, XPathResult.ANY_TYPE, null).numberValue) ===0);
                     else if((this.qu[rn-1] =(this.qu[rn-1] || [0])) && k < threshold)
                         this.qu[rn-1].push(glyph);
                     else{
@@ -406,7 +447,11 @@ export class Zhong{
                     }
                 }
                 catch(er){
-                    console.log('.'+glyph+'.');
+                    console.log([glyph,er]);
+                }
+                finally{
+                    if(this.qu[rn-1][0] <peekcount)
+                        this.qu[rn-1][0] =this.qu[rn-1].length -1;
                 }
             }//if
         });

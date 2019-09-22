@@ -6,8 +6,9 @@
 //import {zhoChat} from "./zhoChat";
 const peekcount =27, peekmax =33;
 
-let timeGhoul =0, tmleave =0
-    ,tmThumb =0;
+let timeGhoul =0
+    ,tmThumb =0
+    ,tmr =0;
 
 //export
 class Zhad{
@@ -32,10 +33,13 @@ class Zhad{
     static Thumbvue ={};
     static tmThumbme =0
     static undo =0;
+    static tmleave =0;
+    static pageID =Math.random();
 
     constructor(){
         let io =this;
         if(!Zhad.options.glyb) Zhad.options.glyb = new zhoChat();
+        this.onwheel =Zhad.onwheel.bind(this);
 
         if( $(this).closest("ui-widget").length ==0 ){
             Zhad.$bench.addClass("ui-widget ui-stenozo");	//makes rerunable easier
@@ -50,40 +54,16 @@ class Zhad{
 
             //this.onOpen();
             //this.onNavigate();
-            Zhad.$bench.append(this.mkParakeys(Zhad.options.parakeys, {"ghoul":null}));
+            Zhad.$bench.append(this.mkParakeys(Zhad.options.parakeys, {"ghoul":null,"∞ƒ":Zhad.options.glyb}));
 
             $(Zhad.options.parakeys.invertShiftScro).click((evt)=>{
                     Zhad.invertShiftScroll =$(event.target).is(':checked');
                     });
 
-            let $thumbview =$('<div id="qu" class="bucket zhongwen-void climid">')
+            let $thumbview =$('<div id="qu" class="zhongwen-void climid">')
             Zhad.$bench.prepend($thumbview);
 
-            $thumbview.on('mousedown',()=>{
-                        let $jump =$(document.elementsFromPoint(event.x,event.y)).filter('.qu, .jump').first().filter(':not(.qu)');
-                        try{
-                            console.log(event);
-                            if( $(event.target).is('.qu') );
-                            else if(event.buttons ==4 || !$jump.length){
-                                Zhad.$bench.find('#qu').empty();
-                            }
-                            else{
-                                let evme =$.Event('mousedown', Zhad.moxy);
-                                $jump.trigger(evme);
-                            }
-                        }
-                        finally{
-                            event.returnValue =false;
-                            event.stopImmediatePropagation();
-                            event.preventDefault();
-                        }
-                    })
-                    .on('contextmenu',()=>{
-                            event.preventDefault();
-                            event.stopPropagation();
-                            return false;
-                    })
-                    .on('mousemove',function bktmove(){
+            $thumbview.on('mousemove',function bktmove(){
                         let xy = Zhad.moxy ={x:event.x,y:event.y}
                             ,root =$(this).data('root');
                         let $jump =$(document.elementsFromPoint(xy.x,xy.y)).filter('.qu, .jump').first();
@@ -110,24 +90,22 @@ class Zhad{
                             $jump.trigger(evme, {flags:256});
                         }
                     });
-            // $thumbview[0].addEventListener("wheel",function thumwhee(evt){
-            //     if((event.wheelDeltaY || event.wheelDelta) <0){
-            //         ellipsor.stopPropagation(evt);
-            //         setTimeout(()=>this.classList.add('maskout','ghoul','limbo'), 300);
-            //     }
-            // }
-            // ,{passive:false});
 
             Zhad.$bench.draggable({opaciti: 0.35
                 ,cancel:'div.jump'})
                 .on('mousemove',()=>{
-                    Zhad.moxy ={x:event.x,y:event.y};
-                    if(!$thumbview[0].matches(".maskout")
-                     && Math.max(Math.abs(event.movementX),Math.abs(event.movementY)) >60){
+                    Zhad.moxy ={"x":event.x,"y":event.y};
+                    let boff =$thumbview[0].matches(".maskout, :empty");
+                    let ele;
+                    if(!boff && Math.max(Math.abs(event.movementX),Math.abs(event.movementY)) >60){
                         $thumbview.empty();
                         console.log([event.movementX,event.movementY]);
                      }
-
+                     else if(boff && (ele=[document.elementFromPoint(event.x,event.y)]).filter(e=>e.parentNode.matches("[name]")).length){
+                         //console.log('try enter');
+                         ele[0].parentNode.dispatchEvent(new MouseEvent('mouseover', event));
+                     }
+                     //else console.log([boff, ele]);
                     })
                 .on('dragover', this.dragOver)
                 .on('drop', this.drop);
@@ -150,18 +128,39 @@ class Zhad{
             }
         });
         observer.observe(Zhad.$bench[0], cfgObserve);
+
     }//end constructor
+
+    syncOptions(context){
+        if(document.getElementById("hotc")) continue;
+
+        else if(context.newValue.busyPage)
+          document.getElementById("hotc").classList.add('busy');
+        else
+          document.getElementById("hotc").classList.remove('busy');
+
+        if(context.newValue.showSimplify)
+          Zhad.$bench.removeClass('traditional');
+        else{
+            Zhad.$bench.addClass('traditional');
+            Zhad.$bench.find(".simpel").removeClass('simpel');
+        }
+    }
 
     destroy(){
         this.onDetach();
+        delete this.$priots;
         Zhad.$bench.empty();
         Zhad.$bench[0].remove();
         Zhad.$bench =$('<div id="zhong" class="hidden nil-darkreader"/>');
         //Zhad.paged.length =Zhad.options.parakeys=0;
         Zhad.dsrc =Zhad.options.glyb =null;
+        Zhad.paged.length =0;
+        //Zhad.onwheel =Zhad.onwheel.bind(0);
     }
     onDetach(){
         $(document).off("mousedown contextmenu");
+        this.onNavigate(true);
     }
 
     onOpen(){
@@ -205,93 +204,99 @@ class Zhad{
             });
     }//end onOpen
 
-    onNavigate(){
-        var tmr =0;
-        $('html')[0].addEventListener('wheel', async ()=>{
-            const bigwheel =-430;
-            var delta =1 //(Zhad.options.parakeys.trackpad.filter(':checked').val() ||1)
-                            *event.wheelDeltaY || event.wheelDelta;
-            var $bench =Zhad.$bench;
-            if($bench.is('.hidden')) return;
-            //event.target is off on android tablet
-            var onrad =parseInt($bench.find('span.radical').first().data('strokes') || 0)
-                , inzho =Zhad.wheeling || document.elementsFromPoint(event.x, event.y).filter((v)=> v ===$bench[0]).length;
-            try{
-                if(delta < 0 && Zhad.spanStrokes ==0 && onrad)
-                    return false;
-                else if(delta < bigwheel && Math.max(delta, Zhad.wheeling) > bigwheel){	//huge unwind... goes to base
-                    console.log(Zhad.wheeling +'>'+ delta);
-                    Zhad.paged.length =0;
-                    inzho =1;
-                }
-                else if(Zhad.wheeling || Math.abs(delta) <90){
-                    return false;
-                }
-                else console.log(delta);
+    static async onwheel(){
+        console.log('veeel');
+        const bigwheel =-430;
+        var delta =1 //(Zhad.options.parakeys.trackpad.filter(':checked').val() ||1)
+                        *event.wheelDeltaY || event.wheelDelta;
+        var $bench =Zhad.$bench;
+        if($bench.is('.hidden')) return;
+        //event.target is off on android tablet
+        var onrad =parseInt($bench.find('span.radical').first().data('strokes') || 0)
+            , inzho =Zhad.wheeling || document.elementsFromPoint(event.x, event.y).filter((v)=> v ===$bench[0]).length;
+        try{
+            if(delta < 0 && Zhad.spanStrokes ==0 && onrad)
+                return false;
+            else if(delta < bigwheel && Math.max(delta, Zhad.wheeling) > bigwheel){	//huge unwind... goes to base
+                console.log(Zhad.wheeling +'>'+ delta);
+                Zhad.paged.length =0;
+                inzho =1;
             }
-            finally{
-                if(inzho){	//wheel inside bench will not scroll container, e.g., body
-                    event.returnValue =false;
-                    event.stopImmediatePropagation();
-                    event.preventDefault();
-                }
+            else if(Zhad.wheeling || Math.abs(delta) <90){
+                return false;
+            }
+            else console.log(delta);
+        }
+        finally{
+            if(inzho){	//wheel inside bench will not scroll container, e.g., body
+                event.returnValue =false;
+                event.stopImmediatePropagation();
+                event.preventDefault();
+            }
 
-                setTimeout(()=>this.mkThumbs(), 0);	//clear fave dialog
-            }//end try
+            setTimeout(()=>this.mkThumbs(), 0);	//clear fave dialog
+        }//end try
 
-            Zhad.wheeling =delta;
-            let banDescend =$bench.is('.flat')
-                ,whilst =new Promise(async (resolve) =>{
-                    if(banDescend)
-                        clearTimeout(tmr);
-                    else
-                        $bench.addClass('flat');
+        Zhad.wheeling =delta;
+        let banDescend =$bench.is('.flat')
+            ,whilst =new Promise(async (resolve) =>{
+                if(banDescend)
+                    clearTimeout(tmr);
+                else
+                    $bench.addClass('flat');
 
-                    try{
-                        if(delta >0){
-                            let $ele =inzho ? $(document.elementFromPoint(event.x, event.y)).children('.jump:not([tip])').addBack('.jump').first() :[];
+                try{
+                    if(delta >0){
+                        let $ele =inzho ? $(document.elementFromPoint(event.x, event.y)).children('.jump:not([tip])')
+                            .addBack('.peeker,.flanker,.jump').first() :[];
 
-                            if(!banDescend && $ele.length && event.shiftKey !=Zhad.invertShiftScroll
-                                && $bench.has('.radical').length ){
-                                onrad =0;
-                                if($ele.is('[data-derived="2"]') || $ele.parent('div[data-jump]').length){
-                                    $ele.mousedown();
-                                }
-                                else
-                                    $bench.find('div[data-jump] > .jump').first().mousedown();
+                        if(!banDescend && $ele.length && event.shiftKey !=Zhad.invertShiftScroll
+                            && $bench.has('.radical').length ){
+                            onrad =0;
+                            if($ele.is('.peeker,.flanker,[data-derived="2"]') || $ele.parent('div[data-jump]').length){
+                                $ele.mousedown();
                             }
-                            else if(!$bench.is('[data-scroll="stop"]') ){
-                                if( $bench.children().length ){
-                                    Zhad.paged.push({"dsrc" :Zhad.dsrc,
-                                            "nstrokes": Zhad.spanStrokes});
-                                }
-                                this.show(parseInt($bench.find('span[data-strokes]').last().data('strokes')));
-                            }
-                        }else if(event.shiftKey	//load base state
-                            || Zhad.paged.length ==0
-                            || (event.buttons & 2) ==2){
-                            Zhad.paged.length =0;
-                            this.show(0, elevate(await Zhad.options.glyb.radicals));
-                            onrad =true;
-                        }else{
-                            let prior =Zhad.paged.pop();
-                            onrad =this.show(prior.nstrokes, prior.dsrc).onrad;
+                            else
+                                $bench.find('div[data-jump] > .jump').first().mousedown();
                         }
+                        else if(!$bench.is('[data-scroll="stop"]') ){
+                            if( $bench.children().length ){
+                                Zhad.paged.push({"dsrc" :Zhad.dsrc,
+                                        "nstrokes": Zhad.spanStrokes});
+                            }
+                            this.show(parseInt($bench.find('span[data-strokes]').last().data('strokes')));
+                        }
+                    }else if(event.shiftKey	//load base state
+                        || Zhad.paged.length ==0
+                        || (event.buttons & 2) ==2){
+                        Zhad.paged.length =0;
+                        this.show(0, elevate(await Zhad.options.glyb.radicals));
+                        onrad =true;
+                    }else{
+                        let prior =Zhad.paged.pop();
+                        onrad =this.show(prior.nstrokes, prior.dsrc).onrad;
                     }
-                    finally{
-                        setTimeout(resolve, $(Zhad.options.parakeys.fastscro).is(':checked') ? 0: 100);
-                    }//end try
+                }
+                finally{
+                    setTimeout(resolve, $(Zhad.options.parakeys.fastscro).is(':checked') ? 0: 100);
+                }//end try
 
-                });//end promise
-            await whilst;
-            setTimeout(()=>Zhad.wheeling =0, 500);
-            if(onrad)
-                tmr =setTimeout(()=>$bench.removeClass('flat',200), 500);
-            else
-                $bench.removeClass('flat');
+            });//end promise
+        await whilst;
+        setTimeout(()=>Zhad.wheeling =0, 500);
+        if(onrad)
+            tmr =setTimeout(()=>$bench.removeClass('flat',200), 500);
+        else
+            $bench.removeClass('flat');
 
-            return false;
-        }, {passive:false});
+        return false;
+    }
+
+    onNavigate(off=false){
+        if(off)
+            document.body.parentNode.removeEventListener('wheel', this.onwheel)
+        else
+            document.body.parentNode.addEventListener('wheel', this.onwheel, {passive:false});
     }//end onNavigate
 
     async whereAt(glyph){
@@ -371,7 +376,7 @@ class Zhad{
                             parsky.push( $("<div class='parakey'/>").append($p).attr(props) );
                         }
                     }
-    
+
                     else if( parakey.tagName && ['input','img'].indexOf(parakey.tagName.toLowerCase()) >=0 ){
                         let props={},
                             attr =Array.from(parakey.attributes).filter(x=>x.name.indexOf('data-title')>=0);
@@ -380,7 +385,8 @@ class Zhad{
                             parakey.removeAttribute(attr[0].name);
                         }
                         parsky.push( $("<div class='parakey'/>").append(parakey)
-                            .attr(props) );
+                            .attr(props)
+                            .addClass(parakey.classList.contains('dumb') ? 'dumb':'') );
                     }
                     else{
                         parsky.push($('<div class="parakey"/>')
@@ -390,28 +396,33 @@ class Zhad{
                 }
             }//end loop
             let $parakeys =$('<span id="parakeys" class="once">').append(parsky);
-    
+
             let btnClose =$('<div class="parakey" id="btnclose" data-title="Close">')
                      .on("click", ()=>Zhad.$bench[0].classList.add('hidden'))
                      .append($('<img alt="●"/>')
                             .attr("src", chrome.runtime.getURL("/images/x.png")));
-    
+
             return [$parakeys, btnClose];
         }
         return null;
     }//end mkParakeys
 
     async show(nstrokes, src, glyat){
-        var $canvas =this.$canvas = (this.$canvas || $('<span>').addClass('ellipser nauto thumbed hidden')).removeClass('detach').empty();
+        chrome.storage.sync.get(['context'], (result)=>{
+            console.log(result.context);
+          });
+        var $canvas =this.$canvas = (this.$canvas || $('<span>').addClass('ellipser nauto thumbed hidden')).removeClass('detach');
         if(!$canvas.parent().length){
             Zhad.$bench.append($canvas);
         }
         try{
-            let [isRadical, palette, isstopped, strokes, birds] =await this.mk(nstrokes, src, glyat);
-            $canvas.append(palette);
+            let rid =Zhad.pageID =Math.random();
+
+            let [isRadical, palette, isstopped, strokes, birds, names] =await this.mk(nstrokes, src, glyat);
+            $canvas.empty().append(palette);
 
             //cheat list
-            await this.mkCheatah(isRadical, birds);
+            this.mkCheatah(rid, isRadical, birds);
 
             if(birds.length ==0 || Zhad.$bench.find('[data-jump]').first().parents('.ellipser').length)
                 $canvas.addClass('detach');
@@ -421,7 +432,7 @@ class Zhad{
             Zhad.$bench.attr({'israd': isRadical ? 1:null
                 })
             .attr('data-scroll', isstopped ? 'stop':'more')
-            .attr('data-strokes', 
+            .attr('data-strokes',
                         (isRadical ? '': '（'+ Zhad.current +'）\t')+
                         (Zhad.spanStrokes+1)
                         +'..\t'+
@@ -433,17 +444,21 @@ class Zhad{
                 let $hotc =Zhad.$bench.find('#hotc')
                     , excludes =Array.from($hotc[0].querySelectorAll("[name]"))
                         .map(x=>x.getAttribute("name"));
-                let zedz =await this.whimpets(null, excludes);
-                for(let lef of zedz){
-                    let $tef =$('<div>').addClass('jump').text(lef.zi)
-                            .attr({'tip':1,'void':0,"data-derived":2, name:lef.name});
-                    $hotc.append($tef);
-                }
+                this.peekers(rid, $hotc);
+                this.flanks(rid, names, $hotc);
+
+                let lefs =await this.whimpets(rid, null, excludes);
+                $hotc.append(lefs.map(lef=>$('<div>').addClass('jump').text(lef.zi)
+                        .attr({'tip':1,'void':0,"data-derived":2, name:lef.name})));
             }
             this.wireJump(Zhad.$bench, isRadical);
 
-            let $strokes =$canvas.find('span[data-strokes] > div:first-child');
-            $strokes.attr('data-strokes', function(){return $(this).parent().attr('data-strokes')});
+            let $strokes =$canvas.find('span[data-strokes] > div:first-child, div[data-derived]:not(.jump) ~ div:not([data-derived])');
+            $strokes.attr('data-strokes', function(){
+                let sib =this.previousSibling;
+                if(!sib || sib.matches('[data-derived]'))
+                    return this.parentNode.getAttribute('data-strokes');
+            });
             return {wo:Zhad.$bench.addClass("hover"), onrad: isRadical};
         }
         catch(err){
@@ -467,15 +482,49 @@ class Zhad{
         let zis =await Zhad.options.glyb.pageOn(src, Zhad.options.tileLimit, isRadical);
 
         let [tiles, ender, strokes, birds] =await this.mkTiles(isRadical, zis, glyat);
+        let names =birds.map($e=>$e.attr('name'));
 
-        return [isRadical, tiles, ender, strokes, birds];
+        return [isRadical, tiles, ender, strokes, birds, names];
     }//end mk
+
+    async flanks(rid, names, $container){
+        let flanked ={}
+            ,lengths =await Zhad.options.glyb.shelfLengths(names);
+
+        for(let i of Object.keys(lengths)){
+            if(lengths[i] >= 2 && 4 >= lengths[i])
+                $container[0].querySelectorAll('[name="'+i+'"]:not(.ligan):not(.jump)')
+                    .forEach(x=>{
+                        flanked[i] =x.textContent;
+                        x.classList.add('flanked');
+                    });
+            else{
+                delete lengths[i];
+                names.splice(names.indexOf(i), 1);
+            }
+        }
+        let tiles =[]
+            ,flankies =await Zhad.options.glyb.onshelf(Object.keys(flanked));
+        for(let name of names){ //names is ordered by most visits
+            if(typeof flankies[name] ==='undefined') continue;
+
+            for(let c of flankies[name].slice(1,4)){
+                let tile =$('<div class="flanker" void="0">')
+                    .text(c)
+                    .attr("name", name);
+                if(flanked[name].indexOf(c) >=0) tile.addClass('rid');
+                tiles.push(tile[0]);
+            }
+        }
+        if(rid===Zhad.pageID) $container.append(tiles);
+        this.wireJump(null,true,tiles);
+    }
 
 
     async mkTiles(isRadical, tiles, glyat){
         const rgxp =/^(.*?)(~)*([0-9]+)*$/ug;
-        let wo =this
-            , canvi =[], y
+        let wo =this, y
+            , canvi =[]
             , birds =[]
             , hots =await Zhad.options.glyb.hots;
         let entertile =function(event){
@@ -501,16 +550,21 @@ class Zhad{
                 rgxp.lastIndex =0;
                 let [tx, lit, derived, name] =rgxp.exec(haizi);
 
-                let	$dv =$('<div/>').addClass('jump').text(lit);
-                let $tile =$("<div/>").attr({"name": name || k
-                        , derived: derived
-                        , strokes: (children.length ? null:k)})
+                let	$dv =$('<div/>').addClass('jump')
+                .attr(derived ? {"data-derived": "1"}:{})
+                .text(lit);
+                let $tile =$("<div/>")
+                    .attr({"name": name || k
+                        //, "data-derived": derived ? "1" :null
+                        //, "data-strokes": (children.length ? null:k)
+                        })
                     .attr(lit===glyat ? {"data-jump":"up"}:{})
+                    .attr(derived ? {"data-derived": "1"}:{})
                     .on('mouseenter', entertile)
                     .append($dv);
 
                 if((y =hots[lit.charAt(0)]) /*&& (y>0 || isRadical)*/){
-                    birds.push( $tile );
+                    birds.push( $tile.attr("visits", y) );
                 }
                 else
                     children.push($tile);
@@ -523,10 +577,11 @@ class Zhad{
             canvi.push($dva);
         }
         let boolStop =tiles[k]==="stop";
-        return [canvi, boolStop ? "stop":null, parseInt(k), birds];
+        return [canvi, boolStop ? "stop":null, parseInt(k)
+            , birds.sort(($l,$r) => parseInt($r.attr("visits")) -parseInt($l.attr("visits")))];
     }//end mkTiles
 
-    async whimpets($root, excludes=[], nlimit = 3){
+    async whimpets(rid, $root, excludes=[], nlimit = 3){
         $root = $root || Zhad.$bench.filter('[israd="1"]').find('.ellipser');
         let $leaf =$root.find('div[name]:not(.jump):not(.blu):not([data-derived="1"])');
         let qu =[]
@@ -539,7 +594,29 @@ class Zhad{
             let lef =(!(que instanceof Promise) && que && que[k]) || await Zhad.options.glyb.shelfup(laf.textContent.charAt(0));
             if(lef) qu.push(...lef.slice(1,nlimit).map(x=>{return {"zi":x,"name":k}}) );
         }
-        return qu;
+        return rid ===Zhad.pageID ? qu : [];
+    }
+
+    async peekers(rid, $container){
+        let glyb =Zhad.options.glyb
+            ,hots =glyb.hottops(100)
+            ,present =Array.from(Zhad.$bench[0].querySelectorAll('[name]'))
+                .map(v=>parseInt(v.getAttribute("name")))
+            ,peeked =[];
+        for(let c of (await hots)){
+            let r =(await glyb.glyphRootNode(c)).r;
+            if(present.indexOf(r-1) ===-1){
+                let tile =$('<div class="peeker" void="0">')
+                    .text(c)
+                    .attr("name", r-1);
+
+                if(peeked.push(tile[0]) >=10) break;;
+            }
+        }
+        if(rid ===Zhad.pageID){
+            $container.append(peeked);
+            this.wireJump(null,true,peeked);
+        }
     }
 
     async mkThumbs(glyph, evt, above = false){
@@ -557,11 +634,6 @@ class Zhad{
                     Zhad.$bench.find('div#qu').removeClass("nomie");
                     //console.log( $._data( Zhad.$bench[0], "events" ) );
                 }
-
-                // if(document.elementFromPoint(evt.x, evt.y).matches("#qu")){
-                //     Zhad.$bench.off("mousemove", qumousemov);
-                //     Zhad.$bench.find('div#qu').removeClass("nomie");
-                // }
             };
         let eles =document.elementsFromPoint(Zhad.moxy.x,Zhad.moxy.y).slice(0,3);
 
@@ -575,22 +647,39 @@ class Zhad{
         else if( eles[0].matches('.qu') ){
             console.log(glyph.textContent);
         }
-        else if(eles.find(e=>[e, ...e.children].indexOf(glyph) >=0) && $bucket.addClass('maskout limsbo ghoul nomie',0)
+        else if(eles.find(e=>[e, ...e.children].indexOf(glyph) >=0) && $bucket.removeClass("sideleft narrow")
+                .addClass('maskout limsbo ghoul nomie',0)
                 .data('root', glyph)){
             clearTimeout(Zhad.thumbvue);
             Zhad.$bench.off("mousemove", qumousemov);
 
-            let qu = await Zhad.options.glyb.shelfup(glyph.textContent.charAt(0));
-            if(!qu) return 0;
+            let qu = await Zhad.options.glyb.shelfup(glyph.textContent.charAt(0))
+                ,ch =glyph.textContent.charAt(0);
+            if(!qu || qu.length <=1 || (qu[0]===1 && qu[1]===ch) ) return 0;
 
             let wo =this
-                ,ch =glyph.textContent.charAt(0)
                 ,lu=[];
             qu.slice(1, Math.min(peekmax, Math.max(qu[0], peekcount)))//.reverse()
                 .sort((l,r)=>l===ch ? -1:0)
                 .forEach((g,i)=>lu.push($('<div class="qu">').text(g).addClass(()=>g==ch ? 'rid':null)));
 
+            if(lu.length <=15) $bucket.addClass("narrow");
+
             $bucket.empty().append(lu);
+            const  penleave =function(evt){
+                    clearInterval(Zhad.tmleave);
+                    Zhad.tmleave =setInterval(()=>{
+                        let cell=[document.elementFromPoint(Zhad.moxy.x, Zhad.moxy.y)];
+                        if(cell.filter(x=>x===$bucket.data('root')).length ===0){
+                            clearInterval(Zhad.tmleave);
+                            //$bucket[0].classList.add('maskout');
+                            Zhad.moxy ={x:0,y:0};
+                            $bucket.empty();
+                        }
+//                        else console.log(cell);
+                        }, isNaN(evt) ? 500: evt);
+                };
+            penleave(600);
 
             $bucket.children('.qu')
                 .on('mousedown', function clickqu(){
@@ -604,21 +693,16 @@ class Zhad{
                     return ellipsor.stopPropagation(event);
                     })
                 .on('mouseenter',function quent(){
-                    clearInterval(tmleave);
+                    clearInterval(Zhad.tmleave);
                     Zhad.$bench.attr('data-jump', this.textContent);
                     })
-                .on('mouseleave',function bktleave(){
-                    tmleave =setInterval(()=>{
-                        let cell=Array.from(document.elementsFromPoint(Zhad.moxy.x, Zhad.moxy.y));
-                        if(cell.filter(x=>x===$bucket.data('root')).length ===0)
-                           $(this).parent().addClass('maskout');
-                        }, 500);
-                })
+                .on('mouseleave', penleave)
                 .on('contextmenu',()=>{
                     return ellipsor.stopPropagation(event);
                 });
             if(this.positionThumbs(glyph))
                 Zhad.tmThumbme =setTimeout(()=>Zhad.$bench.on("mousemove", qumousemov), 100);
+
         }//end if
         return 0;
     }//end mkThumbs
@@ -633,12 +717,17 @@ class Zhad{
         let coord =window.getComputedStyle(glyph)
             , xy =glyph.offsets(bench)
             , h =glyph.offsetHeight
-            , x =xy.left +(glyph.offsetWidth/2)  -Math.floor($this.offsetWidth /3)
+            , x =bench.offsetWidth -(xy.left +(glyph.offsetWidth/2)) // -Math.floor($this.offsetWidth /3)
             , y =//(window.scrollY+window.visualViewport.height)
                 bench.offsetHeight
                  -(h+xy.top+thumhi) +(above ? (h*.8):0);
 
-        $this.style.css({left: x+'px', bottom: y+'px'});
+        if(xy.left > (bench.offsetWidth*1/6))
+            $this.style.css({"bottom": y+'px', "left":"", "right": x+'px'});
+        else{
+            $this.classList.add("sideleft");
+            $this.style.css({"bottom": y+'px', "left":(xy.left)+'px'});
+        }
 
         setTimeout(()=>{
             let topties =Array.from(lu).filter(tile=>Math.floor(tile.offsetTop) <thumhi);
@@ -666,11 +755,12 @@ class Zhad{
     }//end positionThumbs
 
 
-    async mkCheatah(isRadical, birds){
+    mkCheatah(rid, isRadical, birds){
         let $ligan =$('<span/>').addClass('ligan flexbug rfloat');
         let reds =0, uniqueNames =[]
-            ,$priots = this.$priots
-                =(this.$priots || $(Zhad.$bench[0].querySelector('#hotc') || '<span id="hotc" class="zhongwen-void thumbed"/>')).empty().append($ligan);
+            ,$priots = $(this.$priots || Zhad.$bench[0].querySelector('#hotc') || '<span id="hotc" class="zhongwen-void thumbed busy"/>');
+
+        $priots.empty().append($ligan);
 
         if(birds.length ===0){
             $priots.addClass("isempty");
@@ -682,13 +772,12 @@ class Zhad{
 
         //cheat list
         Zhad.$bench.find('div#qu').empty();
-        let hots =await Zhad.options.glyb.hots;
+        let freqs =[];
 
-        for(let $hoti of birds.sort(($x,$y) => hots[$y[0].textContent.charAt(0)]
-                                            -hots[$x[0].textContent.charAt(0)])){
+        for(let $hoti of birds){
 
             let glyph =$hoti[0].textContent.charAt(0)
-                ,encount =hots[glyph]
+                ,encount =parseInt($hoti.attr('visits'))
                 ,name =$hoti.attr("name");
             if(!isRadical);
             else if(encount <0 || uniqueNames.indexOf(name)===-1)
@@ -722,12 +811,12 @@ class Zhad{
                         .attr({name:name, 'data-derived':1});	//truncate the ligans
                 }
                 else
-                    $priots.append( $hoti.addClass("rid") );
+                    freqs.push( $hoti.addClass("rid") );
 
                 continue;
             }
             else
-                $priots.append( $hoti );
+                freqs.push( $hoti );
 
             if(encount ===1) continue;
             else if(++reds <=4)
@@ -740,11 +829,17 @@ class Zhad{
 
             if(encount >1)	$hoti.attr('tip', encount);
         }//end loop
+        $priots.append( freqs );
+
         let ligi =new RegExp('['+$ligan[0].textContent+']');
         $priots.find('div:not(.ligan):not(.jump)')
             .filter((i,e)=>ligi.test(e.textContent)).addClass('hidden');
 
-        if(!$priots.parent().length) Zhad.$bench.find('#qu').after($priots);
+        if(!$priots.parent().length){
+            Zhad.$bench.find('#qu').after($priots);
+            chrome.storage.sync.get(['context'], (context)=>{if(!context.context.busyPage) $priots.removeClass('busy');});
+            this.$priots =$($priots[0]);
+        }
 
         switch(true){
         case $ligan.children().length ==0:
@@ -757,14 +852,15 @@ class Zhad{
         }//end switch
     }//end mkCheatah
 
-    wireJump($canvas, isRadical){
+    wireJump($canvas, isRadical, aryl){
         let io =this
-            ,$parakeys =Zhad.$bench.find('#parakeys.once .parakey');
-
-        $(Array.from($canvas[0].querySelectorAll('.jump'))
-            .filter(x=>!x.parentNode.matches('.parakey'))
-            .map(v=>v.matches('[data-derived="2"]') ? v : v.parentNode))
-            .add($parakeys)
+            ,$parakeys =Zhad.$bench.find('#parakeys.once .parakey:not(.dumb)');
+        let $tiles = aryl ? $(aryl)
+            : $(Array.from($canvas[0].querySelectorAll('.jump'))
+                .filter(x=>x.parentNode && !x.parentNode.matches('.parakey'))
+                .map(v=>v.matches('.peeker, [data-derived="2"]') ? v : v.parentNode))
+                .add($parakeys);
+        $tiles
             .on('mousedown', async function(){
                 event.preventDefault();
                 event.stopPropagation();
@@ -783,7 +879,7 @@ class Zhad{
                     let $target =$(this)
                         , strokes =await Zhad.options.glyb.querySelectorAll('entry[radical]');
                     var rglyph =new RegExp('[' +$target.text().replace(/^([^ ]+)(.*?([^ ,\.\t:\[\(\)\]]).*|.*)$/gu,'$3$1')+ ']', 'gu'),
-                        idx =parseInt($target.find('[data-derived]').addBack('[data-derived]').attr('name') || -1);
+                        idx =parseInt($target.find('[data-derived]').addBack('.peeker,.flanker,[data-derived]').attr('name') || -1);
 
                     let zod = strokes.filter((x,n)=> rglyph.test(x.radical) || n ==idx )[0];
                     Zhad.current =zod.radical +' '+zod.n+"+";
@@ -912,30 +1008,4 @@ class Zhad{
                 return ellipsor.stopPropagation(event);
             };
     }//end post
-
-    async hottops(k =200){
-        return await Zhad.options.glyb.hottops(k);
-    }//end hottops
-
-    async repull(){
-        await Zhad.options.glyb.rx(true);
-        Zhad.options.glyb.shelves();
-    }//end repull
-
-    async hotlines(k =200, limitLength=60){
-        let regux =new RegExp('(.{1,' +limitLength+ '})','sug');
-        let hott =await Zhad.options.glyb.hottops(k);
-        return hott.join('').match(regux).join('\n');
-    }//end hotlines
 }//end stenozho widget
-
-
-window.addEventListener("beforeunload", ()=>{
-    let $uiw =$('.ui-stenozo')
-    // $uiw.each((i, ui)=>{
-    //     let stez =$(ui).data('uiStenozho');
-    //     //if(stez.options.glyb) stez.options.glyb.clear();
-    //     stez.destroy();
-    // });
-});
-

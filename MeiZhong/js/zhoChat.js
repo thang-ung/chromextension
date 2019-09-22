@@ -1,4 +1,4 @@
-//export 
+//export
 class zhoChat{
     constructor(){
     }
@@ -57,19 +57,25 @@ class zhoChat{
     }
 
     rx(force){
-        return this.send({type:"rx", force:force});
+        return this.send({type:"rx", "force":force});
     }
     rank(glyph, $radical){
-        return this.send({type:"rank", glyph: glyph, radical: $radical});
+        return this.send({type:"rank", glyph: glyph, "radical": $radical && $radical.length ? $radical[0] : $radical});
     }
     shelfup(radical){
         return this.send({type:"shelfup", radical: radical});
+    }
+    onshelf(indices){
+        return this.send({type:"onshelf","indices":indices});
     }
 
 
     shelves(){
         this.send({type:"shelves"});
         return;
+    }
+    shelfLengths(indices){
+        return this.send({type:"shelfLengths","indices":indices});
     }
     glyphRootNode(c){
         return this.send({type:"glyphRootNode", glyf:c});

@@ -3,12 +3,54 @@
 <head>
     <title>mei zhong Options</title>
     <meta charset="utf-8"/>
-    <link rel="shortcut icon" href="images/icon-128.png"/>
+    <link rel="shortcut icon" href="images/each-hi.png"/>
     <link rel="stylesheet" type="text/css" href="css/bootstrap.min.css"/>
+    <style>
+        ul > li{align-items:baseline;display:flex;flex-wrap:wrap;flex-direction: row;}
+        ul > li::before{content:"⊕";margin:-.3em 0 0 -1em;position:absolute;color:blue;font-size:1.2em;}
+        #localStorageMemory ~ div{flex-basis:100%;padding-left:1em;}
+        #localStorageMemory:not(:checked) ~ div #ontoStorage{
+            pointer-events: none;
+            opacity:.5;
+        }
+        img#compass{background-color:lightsteelblue;width:2em;border-radius:.4em;margin:0 .2em;}
+        li.noimpl{
+            transform:translate(0,0);
+        }
+        li.noimpl::after{
+            content: "NOT IMPLEMENTED";
+            color:rgba(200,200,200,.4);
+            font-size:2.2em;
+            transform:rotateX(15deg) rotateY(-15deg) perspective(200px);
+            position:absolute;
+            pointer-events:none;
+        }
+    </style>
 </head>
 <body>
-<div class="container">
-    <h1 class="my-3">Options for ...</h1>
+<div id="root" class="container">
+    <h1 class="my-3">Options for <img src="images/each.png" alt="meizhong"/></h1>
+    <ul>
+        <li><input type="checkbox" id="permitRemote"/>&nbsp;<label for="permitRemote">permit to download external XML text files over HTTP web.<br>
+            to calibrate word prioritisation --upon recalibrate (side button<img id="compass" src="images/compass.png" alt='calibrate'/>)</label></li>
+        <li><input type="checkbox" id="busyPage"/>&nbsp;<label for="busyPage">show expansion view</label>
+            <ol>
+                <li>Expand radicals with three or less thumbs onto page</li>
+                <li>Include unvisited radical's top few thumbs onto page</li>
+                <li>Include top 10 visited glyphs not available onto current page</li>
+            </ol></li>
+        <li><input type="checkbox" id="showSimplify"/>&nbsp;<label for="showSimplify">Show simplified forms (traditional only is more difficult)</label></li>
+        <li class='noimpl'><input type="checkbox" id="localStorageMemory"/>&nbsp;<label for="localStorageMemory">Memorize outputs into local storage</label>
+            <div>
+                <label for="ontoStorage">When to memorize:</label>&nbsp;<input id="ontoStorage" DISABLED list="trigger">
+                <datalist id="trigger">
+                <option value="¶">save current line</option>
+                <option value=".">save every word</option>
+                <option value=" ">save space delimited block</option>
+                </datalist>
+            </div>
+        </li>
+    </ul>
 </div>
 <script src="js/options.js" type="text/javascript"></script>
 </body>

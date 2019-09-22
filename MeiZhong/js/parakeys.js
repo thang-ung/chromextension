@@ -6,13 +6,24 @@ const parakeys ={
     "sp":" ", "¶":"\n"
     //,"’ ƒ":new RegExp("‘$1’"), "” ƒ":new RegExp("“$1”")
     ,"’ ƒ":/‘$1’/, "” ƒ":/“$1”/
-    ,"ghoul": (wo)=>{ let title ='ghost toggler';
-        return $('<img src={ghost} alt="●" />')
+    ,"ghoul": (wo)=>{ let title ='Toggle\nunvisited';
+        return $('<img src={ghost} alt="●" class="simpel" />')
                 .on("click", (evt)=>{
                         if(wo && wo.toggle)
                             wo.toggle("hidden");
-                        else
-                            $(evt.target).parents('#parakeys')[0].parentNode.querySelector('.ellipser').classList.toggle('hidden');
+                        else{
+                            let root =$(evt.target).parents('#parakeys')[0].parentNode,
+                                booltrad =root.matches(".traditional");
+                            let elip =root.querySelector('.ellipser');
+                            if(!booltrad && ['simpel','hidden'].filter(c=>elip.classList.contains(c)).join('') ==='simpel'){
+                                elip.classList.remove('simpel');
+                                evt.target.parentNode.parentNode.classList.remove("simpel");
+                            }
+                            else if(!elip.classList.toggle('hidden') && !booltrad){
+                                elip.classList.add('simpel');
+                                evt.target.parentNode.parentNode.classList.add("simpel");
+                            }
+                        }
                     })
                 .attr({"src" :chrome.runtime.getURL("/images/ghoul.png"),
                     "data-title-left" :title})
@@ -20,7 +31,7 @@ const parakeys ={
 
         }
 
-    ,"draghand": $('<img alt="●" data-title="drag handle"/>')
+    ,"draghand": $('<img alt="●" class="dumb" data-title="drag\nhandle"/>')
                 .attr("src", chrome.runtime.getURL("/images/mikih.png"))[0]
     ,"focus": (content)=>{ let title ='Output target\nLockdown';
             let fn= ()=>{
@@ -30,7 +41,8 @@ const parakeys ={
                             focus =target;
                         if(__editables.indexOf(target.nodeName) >=1) target =target.parentNode;
                         target.classList.toggle("meiolocker");
-                        let cmpu =window.getComputedStyle(target,"::before");
+                        //let cmpu =window.getComputedStyle(target);
+                        let cmpu =target.getBoundingClientRect();
                         if(parseInt(cmpu.left) <= 0) target.classList.add("aftr");
 
                         let booltest =focus.matches && !focus.matches(__editables.join(','));
@@ -52,7 +64,7 @@ const parakeys ={
         .attr({"data-title-left" :title})[0];
     }
 
-    ,"灭 ƒ": ()=>{ let title ='List top\ncommon glyphs';
+    ,"灭 ƒ": ()=>{ let title ='List top\ncommon\nglyphs';
         let fn =(wo, dest)=>{
             if(wo && wo instanceof zhoChat){
                 let lnwidth =20;
@@ -72,17 +84,17 @@ const parakeys ={
             .attr({"data-title-left" :title})[0];
     }
 
-    ,"∞ƒ": (content)=>{ let title ='Recalibrate';
+    ,"∞ƒ": (context)=>{ let title ='Recalibrate';
             return $('<img  alt="●">')
                     .attr({"data-title-left" :title,
                         "src" :chrome.runtime.getURL("/images/compass-je.png")})
                     .css({"max-width":"1.28em"})
                     .on('click', (evt, wo)=>{
-                        if(wo && wo instanceof zhoChat)
-                            return wo.rx();
+                        if(context && context instanceof zhoChat)
+                            return context.rx(true);
                     })[0];
         }
-    ,"拇ƒ": ()=>{ let title ='Thumbsuck';
+    ,"拇ƒ": ()=>{ let title ='Thumbs\ndata';
         let fn=async (wo)=>{
             if(wo && wo instanceof zhoChat){
                 let $postee =window.getSelection()

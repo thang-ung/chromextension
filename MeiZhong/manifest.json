@@ -38,8 +38,8 @@
       "open_in_tab": true,
       "page": "options.html"
    },
-   "permissions": [ "contextMenus", "tabs" ],
+   "permissions": [ "contextMenus", "tabs", "activeTab", "storage" ],
    "short_name": "MeiZhong",
-   "version": "1.0.0",
+   "version": "1.0.2",
    "web_accessible_resources": [ "css/*", "js/*", "images/*" ]
 }
