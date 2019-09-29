@@ -1,9 +1,9 @@
-//export 
+//export
 class ellipsor{
     constructor(){}
 
     static get autocheck(){
-        return $('<input type="checkbox" id="eclipsor" data-title="Enable auto\nCollapse"/>')[0];
+        return elemental.create("input",{"type":"checkbox", "id":"eclipsor","data-title":"Enable auto\nCollapse"});
     }
 
     static stopPropagation(event){

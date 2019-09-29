@@ -34,8 +34,9 @@ let isActivated = false;
 chrome.storage.sync.set({"active": isActivated});
 
 chrome.browserAction.getBadgeText({}, (result)=>{ //extensions mgr retains badge text between on/off
-    isActivated =result ? true : false;
-    chrome.storage.sync.set({"active": isActivated});
+    if(result){
+        togglesSuspend({id:-1});
+    }
 });
 
 
@@ -53,15 +54,13 @@ let __options = window.__options = {
     context: Object.assign(__configDefault, JSON.parse(localStorage['context'] || '{}')),
 };
 
-function resume(tabId) {
+function resume(tabId){
     if(!ctex){
          ctex =new Zhong();
          ctex.clients ={};
     }
 
-    chrome.runtime.onConnect.addListener((inf)=>{
-        console.log([tabId, inf]);
-    });
+    chrome.runtime.onConnect.addListener(inf=>inf); //required listen
 
     chrome.browserAction.setBadgeBackgroundColor({'color': [0, 128, 200, 255]});
     chrome.browserAction.setBadgeText({'text': 'On'});
@@ -71,7 +70,7 @@ function resume(tabId) {
 function suspend() {
     chrome.storage.sync.set({"active": isActivated =false});
 
-    ctex = undefined;
+    ctex = void 0;
 
     chrome.browserAction.setBadgeBackgroundColor({'color': [0, 0, 0, 0]});
     chrome.browserAction.setBadgeText({'text': ''});
@@ -80,7 +79,7 @@ function suspend() {
     isActivated = false;
 }
 
-function togglesSuspend(currentTab) {
+function togglesSuspend(currentTab){
     if(isActivated){
         suspend();
     }
@@ -95,20 +94,45 @@ function iscount(o, zeroalt=0) {
 
 chrome.browserAction.onClicked.addListener(togglesSuspend);
 
-// chrome.tabs.onActivated.addListener(activeInfo => ...(activeInfo.tabId));
-// chrome.tabs.onUpdated.addListener((tabId, changeInfo)=>{
-//     if(changeInfo.status === 'complete')  ...(tabId);
+// chrome.tabs.onActivated.addListener(inf => ...(inf.tabId));
+// chrome.tabs.onUpdated.addListener((TID, inf)=>{
+//     if(inf.status === 'complete')  ...(TID);
 // });
+function tally(c){
+    if(__options.context.localStorageMemory){
+        c = typeof(c) ==="string" ? c.split('') : c;
+        let co ={};
+        for(let g of c){
+            co[g] =ctex._hots[g];
+        }
+        chrome.storage.local.set(co);
+        // chrome.storage.local.get(c,(gets)=>{
+        //     let co ={};
+        //     c.forEach((g,i)=>{
+        //         if(chrome.runtime.lastError)
+        //             co[g] =1;
+        //         else co[g] =(gets[g] || 0) +1;
+        //     });
 
-window.onchange =(evt)=>{   //update from option page
-    localStorage['context'] =JSON.stringify(__options.context);
-    chrome.storage.sync.set({'context':__options.context});
+        //     chrome.storage.local.set(co);
+        // });
+    }
+}
+
+
+window.onchange =(evt, dat)=>{   //update from option page
+    if(dat)
+        tally(dat.toString());
+    else{
+        localStorage['context'] =JSON.stringify(__options.context);
+        chrome.storage.sync.set({'context':__options.context});
+    }
 };
 
 chrome.runtime.onMessage.addListener(function(request, sender, response){
     switch(request.type){
     case "register":
-        if(typeof(request.op) ==='undefined'){
+        if(request.op ===void 0){
             if(ctex){
                 delete ctex.clients[sender.tab.id];
                 chrome.browserAction.setBadgeText({'text': iscount(ctex.clients, 'On').toString()});
@@ -199,7 +223,7 @@ chrome.runtime.onMessage.addListener(function(request, sender, response){
         break;
     case "rx":
         ctex.rx(request.force);
-        response(undefined)
+        response(void 0)
         break;
 
     // case 'open':

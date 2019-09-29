@@ -15,8 +15,8 @@ let dl ={};
 async function enableTab() {
     //console.log([window.parent, window.location.href]);
     let success =await dedupmei.send({"type":"register","op":0});
-    if(!success)
-        dedupmei.detach();
+    if(!success)/*
+        dedupmei.detach() */;
     else if(!dl.stenp){
 
         dl ={stenp: new Zhad(),
@@ -27,7 +27,6 @@ async function enableTab() {
             dl.port.onDisconnect.addListener(()=>{
                 disableTab().remove();
                 });
-            console.log(dl.port);
         }
         else console.log('portfail');
 
@@ -76,20 +75,11 @@ function onactive(isactive){
     }
 }
 
-let miniHelp = `
-    <details open style="font-weight: bold;">
-    <summary>MeiZhong Chinese-glyphs
-    </summary>
-    </details>
-    <br>
-    <details><summary>Keyboard shortcuts:</summary></details>`;
-
 chrome.storage.onChanged.addListener(function(changes, namespace) {
     for(var key in changes) {
-        var stoChange = changes[key].newValue;
         switch(key){
         case 'context':
-            ctex.syncOptions(changes[key]);
+            if(dl.stenp instanceof Zhad) dl.stenp.syncOptions(changes[key]);
             break;
         case 'active':
             onactive(changes[key].newValue);
@@ -98,27 +88,25 @@ chrome.storage.onChanged.addListener(function(changes, namespace) {
             break;
         }
     }//end loop
+
   });
 chrome.storage.sync.get(['active'], (values)=>{
-    onactive(values.active);
+    onactive(chrome.runtime.lastError || values.active ? true:false);
 })
 
 class dedupmei{
-    static _done =dedupmei.onmsg();
-    static _solo =0;
-    static msg(request, sender) {
-        switch (request.type) {
-        case 'showPopup':
-            if (!request.isHelp || window === window.top) {
-                showPopup(request.text);
-            }
-            break;
-        case 'showHelp':
-            //showPopup(miniHelp);
-            break;
-        default:
-        }
-    }
+    // static _done =dedupmei.onmsg();
+    // static _solo =0;
+    // static msg(request, sender) {
+    //     switch (request.type) {
+    //     case 'showPopup':
+    //         if (!request.isHelp || window === window.top) {
+    //             showPopup(request.text);
+    //         }
+    //         break;
+    //     default:
+    //     }
+    // }
     static async send(msg){
         let whilst =new Promise(
             (resolve) =>{
@@ -144,14 +132,14 @@ class dedupmei{
         return msg.response;
     }
 
-    static onmsg(){
-        if(window.parent !== globalThis || window.__onemei) return 0;
+    // static onmsg(){
+    //     if(window.parent !== globalThis || window.__onemei) return 0;
 
-        chrome.runtime.onMessage.addListener(dedupmei.msg);
-        return window.__onemei =Math.random();
-    }
+    //     chrome.runtime.onMessage.addListener(dedupmei.msg);
+    //     return window.__onemei =Math.random();
+    // }
 
-    static detach(){
-        chrome.runtime.onMessage.removeListener(dedupmei.msg);
-    }
+    // static detach(){
+    //     chrome.runtime.onMessage.removeListener(dedupmei.msg);
+    // }
 }

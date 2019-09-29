@@ -1,21 +1,6 @@
-//import {elevate} from "./utils.js"
-/*
-requirejs.config({
-    //			enforceDefine: true,
-                paths:{
-                    jquery: 'https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min'
-                    ,jqueryui: 'https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min'
-                }
-            });
-module.exports = {
-    //...
-    externals: {
-        jquery: 'https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min'
-    }
-    };
-*/
-//var XMLParser = require('react-xml-parser');
-//var XMLParser = require('xmldom-qsa').DOMParser;
+import {} from "../minified/utils.min.js";    //nees string.prototype.firstchar
+
+
 const peekcount =27, peekmax =33;
 const xmremote ="http://justjillizm.com/";
 const xmroot =chrome.runtime.getURL("/");
@@ -24,11 +9,13 @@ export class Zhong{
     static __selectorCached ={};
     static fonal;
     static ligans =Zhong.embellish();
+    static rootseq ={};
+    static strokes =Zhong.setGlyphs();
+
     constructor(){
         this._hots ={};
         this.className ={};
 
-        Zhong.setGlyphs();
         this.rx();
         this.qu =[];
     }//end constructor
@@ -47,24 +34,24 @@ export class Zhong{
             return ta.textContent;
     }//end textOf
 
-    static setGlyphs(refresh =false){
+    static textZhong(ta){
+        return Zhong.textOf(ta).replace(/[\u0000-\u4DFF\uFEFF\uff0c]/gu,''); //UTF-BOM EFBBBF
+    }
+
+    static async setGlyphs(refresh =false){
         if(refresh);
         else if(Zhong.radicals && Zhong.radicals.length) return;
         let xmparse =new DOMParser();
 
+        let _strokes=
+        await
         fetch(xmroot +'xml/jungpk-x.xml')
             .then(response => response.text())
             .then(response => xmparse.parseFromString(response,"text/xml"))
             .then((dxml) => {
-                    Zhong.strokes =dxml.documentElement;
-/*					let xpand =zhong.strokes.querySelectorAll('w:not([uend])');
-                    xpand.forEach((stro,i)=>{
-                        let	a =parseInt(stro.getAttribute('zi'));
-                        if(!isNaN(a))
-                            stro.setAttribute('zi', unescape('%u'+a.toString(16)));
-                    });
-*/
-                    let xpand =Zhong.strokes.querySelectorAll('w[uend]');
+                    let __strokes =dxml.documentElement;
+
+                    let xpand =__strokes.querySelectorAll('w[uend]');
                     xpand.forEach((stro,i)=>{
                         let	a =parseInt(stro.getAttribute('zi'))
                             ,z =parseInt(stro.getAttribute('uend'))
@@ -80,7 +67,7 @@ export class Zhong{
                         console.log(lbl.length);
                         stro.replace(lbl);
                     });
-
+                    return __strokes;
                 }
             )
             .catch((err)=>{
@@ -93,7 +80,7 @@ export class Zhong{
             .then((dxml) => {
                     Zhong.radicals =[];
 
-                    Array.from(dxml.querySelectorAll('entry'))
+                    dxml.querySelectorAll('entry')
                     .forEach(valu=>{
                         let	idn =parseInt(valu.getAttribute('n'));
                         let ent ={radical:	valu.getAttribute('rad'),
@@ -105,6 +92,7 @@ export class Zhong{
                     });
                 }
             );
+        return _strokes;
     }//end setGlyphs
 
     static glyphRootNodeEx(glyf){
@@ -217,6 +205,11 @@ export class Zhong{
         return hots;
     }
 
+    static tally(c){
+        //window.dispatchEvent;
+        window.onchange(new Event("change", {data:c}), c);
+    }
+
     async rxBellish(){
         let dataj =await Zhong.ligans;
         for(let k in dataj){
@@ -229,6 +222,7 @@ export class Zhong{
     async rx(refresh =false){
         if(refresh);
         else if(Object.keys(this._hots).length) return;
+        Zhong.strokes =await Zhong.strokes;
 
         if(refresh)
             this._hots ={};
@@ -264,7 +258,7 @@ export class Zhong{
             ).then((dats)=>{
                 let $serials ='';
                 for(let dat of dats)
-                    this.munchPrioti(null, dat, 0);
+                    this.piroritise(null, dat, 0);
     //                $serials += dat;
     //            this.munchPrioti(null, $serials, 0);
             })
@@ -274,6 +268,7 @@ export class Zhong{
             await whilst;
         }
         this.rxBellish();
+        this.fromStorage();
         await this.shelves();
 
         console.log('Zhong ready.')
@@ -281,7 +276,7 @@ export class Zhong{
     }//end rx
 
     munchPrioti(evt, $feed, demux){
-        if(typeof demux ==='undefined')	demux =this.firstly;
+        if(demux ===void 0)	demux =this.firstly;
 
         var dat =Zhong.textOf($feed).split(/[\r\n\t ,\.?;\(\)“”%$#@&!*`-。‘’“”]+/gu),	//《》
             nset =demux ? {} : this._hots;
@@ -306,6 +301,31 @@ export class Zhong{
         this.hots2prio();
     }//end munchPrioti
 
+    piroritise(evt, feed, demux){
+        if(demux ===void 0)	demux =this.firstly;
+
+        let dat =Zhong.textZhong(feed),
+            nset =demux ? {} : this._hots;
+
+        for(let len =dat.length; len > 0; len =dat.length){
+            try{
+                var c =dat.firstchar;    //UTF-16 are length 2
+                if(c.length ===0) throw 'zeroed';
+                dat =dat.replace(new RegExp(c,'gu'), '');
+                nset[c] =(nset[c] || 0) +(len -dat.length)/c.length;
+            }
+            catch(err){
+                console.log(err);
+            }
+        }
+        if(demux)
+            Object.assign( this._hots, nset );
+        else
+            this._hots =nset;
+
+        this.hots2prio();
+    }
+
     hots2prio(){
         this.prio =[];
         for( var glif in this._hots )
@@ -326,8 +346,27 @@ export class Zhong{
         return -1;
     }
 
+    async fromStorage(){
+        if(window.__options.context.localStorageMemory){
+            let whilst =new Promise((resolve)=>{
+                chrome.storage.local.get(null, (gets)=>{
+                    //console.log(gets);
+                    this._hots =Object.assign(this._hots, gets);
+                    resolve();
+                });
+            });
+            await whilst;
+
+        }
+        else{
+            chrome.storage.local.clear();
+            console.log('storage.local cleared');
+        }
+    }
+
     async shelves(threshold =3){
-        if(!Zhong.strokes || !this.prio){
+        if(!Zhong.strokes || this.qu.length){
+            console.log({pantry:this.qu, xs:Zhong.strokes});
             return this.qu || [];
         }
 
@@ -336,21 +375,25 @@ export class Zhong{
             qu =qu.concat(this.prio[j]);
             if(j <threshold || --m ===0) break;
         }//end loop
-        this.qu ={};
+        this.qu =[];
         qu.forEach((g,i)=>{
-            let nod =Zhong.glyphRootNodeEx(g);
-            if(nod){
-                let k =document.evaluate('count(./preceding-sibling::*)+1', nod.parentNode, null, XPathResult.ANY_TYPE, null).numberValue -1;
-
-                this.qu[k] =(this.qu[k] || [peekcount]);
-                this.qu[k].push(g);
+            let nod =Zhong.glyphRootNodeEx(g), k, radic;
+            if(!nod){
+                console.log(g);
+                return;
             }
-            else console.log(g);
+            else if( !(k =Zhong.rootseq[radic =nod.parentNode.getAttribute("radical")]) ){
+                k =document.evaluate('count(./preceding-sibling::*)+1', nod.parentNode, null, XPathResult.ANY_TYPE, null).numberValue -1;
+                Zhong.rootseq[radic] =k;
+            }
+            this.qu[k] =(this.qu[k] || [peekcount]);
+            this.qu[k].push(g);
         });
 
         for(let rad in this.qu){
             this.qu[rad][0] =Math.min(this.qu[rad][0], this.qu[rad].length-1);
         };
+        console.log('stockings');
         return this.qu;
     }//end shelves
 
@@ -388,7 +431,7 @@ export class Zhong{
             }
         }
         if(nod){
-            let k =document.evaluate('count(./preceding-sibling::*)+1', nod, null, XPathResult.ANY_TYPE, null).numberValue -1;
+            let k =Zhong.rootseq[nod.getAttribute('radical')] || document.evaluate('count(./preceding-sibling::*)+1', nod, null, XPathResult.ANY_TYPE, null).numberValue -1;
             if(!this.qu[k] || this.qu[k].length <=1){
                 let qu =[], r;
                 Array.from(nod.children)
@@ -421,7 +464,9 @@ export class Zhong{
                     break;
                 default:
                     // remove lesser priorize
-                    this.prio[k-1] =this.prio[k-1].filter(c => c !== glyph);
+                    if(this.prio[k-1]){
+                        this.prio[k-1] =this.prio[k-1].filter(c => c !== glyph);
+                    }
 
                 }//end switch
 
@@ -452,6 +497,7 @@ export class Zhong{
                 finally{
                     if(this.qu[rn-1][0] <peekcount)
                         this.qu[rn-1][0] =this.qu[rn-1].length -1;
+                    Zhong.tally(glyph);
                 }
             }//if
         });

@@ -11,7 +11,9 @@ class zhoChat{
                     (response)=>{
                         if(msg.type==="strokes"){
                             let xmparse =new DOMParser();
-                            msg.response= xmparse.parseFromString(response,"text/xml").documentElement;
+                            msg.response= xmparse
+                                    .parseFromString(response,"text/xml")
+                                    .documentElement;
 
                         }
                         else

@@ -1,18 +1,18 @@
 class flexbug{
-		static async resizeFlexColumn($flexCol){
-			let digi =/^([0-9]*).*$/,
-				$anchor =$flexCol.children(":not(:hidden)").last(),
-				pads =parseInt(($flexCol.css('padding-left') ||'0').replace(digi,'$1'))
-						 +parseInt(($flexCol.css('padding-right') ||'0').replace(digi,'$1'));
-			if($anchor.length){
-				let ileft =$anchor.offset().left ,
-					iri =$flexCol.offset().left;
+        static async resizeFlexColumn(flexCol){
+            let anchor =flexCol.childNodes.lastVisible,
+                style =window.getComputedStyle(flexCol),
+                pads =parseInt(style.getPropertyValue('padding-left') ||'0')
+                         +parseInt(style.getPropertyValue('padding-right') ||'0');
+            if(anchor){
+                let ileft =anchor.offsetLeft ,
+                    iri =flexCol.offsetLeft;
 
-				if($flexCol.css('direction') =='rtl')
-					$flexCol.css('width', pads +$anchor.width() + Math.abs(iri +-ileft));
-				else
-					$flexCol.css('width', pads +$flexCol.width() +Math.abs(iri -ileft));
-			}
-		}//end resizeFlexColumn
+                if(style.getPropertyValue('direction') =='rtl')
+                    flexCol.style.css({'width': (pads +anchor.offsetWidth + Math.abs(iri -ileft))+'px'});
+                else
+                    flexCol.style.css({'width': (pads +flexCol.offsetWidth +Math.abs(iri -ileft))+'px'});
+            }
+        }//end resizeFlexColumn
 
 }//end flexbug

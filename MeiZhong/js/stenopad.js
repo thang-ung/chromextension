@@ -1,6 +1,4 @@
-//import { Zhong } from "./czhong";
 
-//$(
 //import {elevate} from "./utils";
 //import {parakeys} from "./parakeys";
 //import {zhoChat} from "./zhoChat";
@@ -19,7 +17,7 @@ class Zhad{
             ,uponGlyph:()=>0
             ,donce:()=>0
         };
-    static $bench =$('<div id="zhong" class="hidden nil-darkreader"/>');
+    static bench =elementary.create('div', {id:"zhong", class:"hidden nil-darkreader"});
     static $rxpull =0;
     static wheeling =0;
     static moxy ={x:0,y:0};
@@ -41,74 +39,65 @@ class Zhad{
         if(!Zhad.options.glyb) Zhad.options.glyb = new zhoChat();
         this.onwheel =Zhad.onwheel.bind(this);
 
-        if( $(this).closest("ui-widget").length ==0 ){
-            Zhad.$bench.addClass("ui-widget ui-stenozo");	//makes rerunable easier
-            let root =$("div#extension-zhopad");
-            if(root.length)
-                root =root[0];
-            else{
-                document.body.parentNode.appendChild(root =$("<div id='extension-zhopad'>")[0]);
+        if( !document.querySelector("#zhong") ){
+            Zhad.bench.classList.add("ui-widget","ui-stenozo");	//makes rerunable easier
+            let root =document.querySelector("div#extension-zhopad");
+            if(!root){
+                document.body.parentNode.appendChild(root =elementary.create("div", {"id":'extension-zhopad'}));
             }
-            root.appendChild(Zhad.$bench[0]);
-            Zhad.$bench[0].style.transform="translate(0,0)";
+            root.appendChild(Zhad.bench);
+            Zhad.bench.style.transform="translate(0,0)";
 
             //this.onOpen();
             //this.onNavigate();
-            Zhad.$bench.append(this.mkParakeys(Zhad.options.parakeys, {"ghoul":null,"∞ƒ":Zhad.options.glyb}));
+            Zhad.bench.attr("children", this.mkParakeys(Zhad.options.parakeys, {"ghoul":null,"∞ƒ":Zhad.options.glyb}));
 
-            $(Zhad.options.parakeys.invertShiftScro).click((evt)=>{
-                    Zhad.invertShiftScroll =$(event.target).is(':checked');
-                    });
+            let thumbview =elementary.create('div', {"id":"qu", "class":"zhongwen-void climid"});
+            Zhad.bench.prepend(thumbview);
 
-            let $thumbview =$('<div id="qu" class="zhongwen-void climid">')
-            Zhad.$bench.prepend($thumbview);
-
-            $thumbview.on('mousemove',function bktmove(){
+            thumbview.oneve('mousemove',function bktmove(){
                         let xy = Zhad.moxy ={x:event.x,y:event.y}
-                            ,root =$(this).data('root');
-                        let $jump =$(document.elementsFromPoint(xy.x,xy.y)).filter('.qu, .jump').first();
-                        let $jmp =$jump;
-                        try{
-                            if($jump.length ==0)	return;
+                            ,root =this.fn('root');
+                        let jump =Array.from(document.elementsFromPoint(xy.x,xy.y))
+                            .filter(e => e.matches('.qu, .jump')).filter((v,i)=>i==0);
 
-                            else if($jump.hasClass('qu')){
-                                $(this).removeClass('limbo',50);
-                                $jump =$(root).filter(':not([data-jump])');
+                        try{
+                            if(jump.length ==0)	return;
+
+                            else if(jump[0].classList.contains('qu')){
+                                this.classList.remove('limbo');
+                                jump =[root].filter(x=> !x.matches('[data-jump]'));
                             }
-                            else if($jump.get().indexOf(root) <0)
-                                $jump =$jump.parent();
+                            else if(jump.indexOf(root) <0)
+                                jump =[jump[0].parentNode];
                             else	return;
                         }
-                        finally{
-                            // if($jmp.hasClass('jump'))
-                            //     $(this).addClass('limbo',100);
-                        }
+                        finally{}
 
-                        if($jump.length){
-                            let evme =$.Event('mouseenter', xy);
-                            evme.data ={bits:256};
-                            $jump.trigger(evme, {flags:256});
+                        if(jump.length){
+                            let evme =new MouseEvent('mouseover', xy);
+                            jump[0].dispatchEvent(evme);
                         }
                     });
 
-            Zhad.$bench.draggable({opaciti: 0.35
-                ,cancel:'div.jump'})
-                .on('mousemove',()=>{
+            $(Zhad.bench).draggable({opaciti: 0.35,cancel:'div.jump'});
+            Zhad.bench
+                .oneve('mousemove',(event)=>{
                     Zhad.moxy ={"x":event.x,"y":event.y};
-                    let boff =$thumbview[0].matches(".maskout, :empty");
+                    let boff =thumbview.matches(".maskout, :empty");
                     let ele;
                     if(!boff && Math.max(Math.abs(event.movementX),Math.abs(event.movementY)) >60){
-                        $thumbview.empty();
-                        console.log([event.movementX,event.movementY]);
+                        thumbview.innerHTML ="";
                      }
-                     else if(boff && (ele=[document.elementFromPoint(event.x,event.y)]).filter(e=>e.parentNode.matches("[name]")).length){
-                         //console.log('try enter');
+                     else if(boff && (ele=[document.elementFromPoint(event.x,event.y)])
+                                .filter(e=>e.parentNode.matches("[name]")).length){
+
                          ele[0].parentNode.dispatchEvent(new MouseEvent('mouseover', event));
                      }
-                     //else console.log([boff, ele]);
+
                     })
-                .on('dragover', this.dragOver)
-                .on('drop', this.drop);
+                .oneve('dragover', this.dragOver)
+                .oneve('drop', this.drop);
         }
         else{
             this.destroy();
@@ -127,50 +116,51 @@ class Zhad{
                 Zhad.options.uponGlyph(muta.target.getAttribute('data-jump'));
             }
         });
-        observer.observe(Zhad.$bench[0], cfgObserve);
+        observer.observe(Zhad.bench, cfgObserve);
 
     }//end constructor
 
     syncOptions(context){
-        if(document.getElementById("hotc")) continue;
-
+        if(!document.getElementById("hotc"));
         else if(context.newValue.busyPage)
           document.getElementById("hotc").classList.add('busy');
         else
           document.getElementById("hotc").classList.remove('busy');
 
         if(context.newValue.showSimplify)
-          Zhad.$bench.removeClass('traditional');
+            Zhad.bench.classList.remove('traditional');
         else{
-            Zhad.$bench.addClass('traditional');
-            Zhad.$bench.find(".simpel").removeClass('simpel');
+            Zhad.bench.classList.add('traditional');
+            Array.from(Zhad.bench.querySelectorAll(".simpel")).forEach(e=>e.classList.remove('simpel'));
         }
     }
 
     destroy(){
         this.onDetach();
-        delete this.$priots;
-        Zhad.$bench.empty();
-        Zhad.$bench[0].remove();
-        Zhad.$bench =$('<div id="zhong" class="hidden nil-darkreader"/>');
+        delete this.priots;
+        Zhad.bench.innerHTML ="";
+        Zhad.bench.remove();
+        Zhad.bench =elementary.create('div', {id:"zhong", class:"hidden nil-darkreader"});
         //Zhad.paged.length =Zhad.options.parakeys=0;
         Zhad.dsrc =Zhad.options.glyb =null;
         Zhad.paged.length =0;
         //Zhad.onwheel =Zhad.onwheel.bind(0);
     }
     onDetach(){
-        $(document).off("mousedown contextmenu");
+        document.body.parentNode.offeve("mousedown", "midown")
+            .offeve("contextmenu", "ctxmenu");
         this.onNavigate(true);
     }
 
     onOpen(){
         var buttons =0
             ,wo =this;
-        $(document).on('mousedown', async function midown(evt){
-                let bench =Zhad.$bench[0];
+        document.body.parentNode
+            .oneve('mousedown', async function midown(evt){
+                let bench =Zhad.bench;
 
                 if((buttons =evt.buttons&7) >=3 && !evt.shiftKey){
-                    let event =evt.originalEvent;
+                    let event =evt.originalEvent || evt;
                     if(bench.matches(":empty"))
                         bench.classList.remove("hidden");
                     else if(bench.classList.toggle('hidden'))
@@ -182,9 +172,7 @@ class Zhad{
 
                     bench.style.css(coords);
                     if(bench.matches(":empty") || !bench.querySelector('.ellipser')){
-                        //await wo.context.shelves();
-                        //this.setState({show:0});
-                        wo.show(0, elevate(await Zhad.options.glyb.radicals));
+                        wo.show(0, elevate(Zhad.options.glyb.radicals));
                         Zhad.options.donce();
                     }
                     else
@@ -197,97 +185,95 @@ class Zhad{
                 setTimeout(()=>buttons=0,10);
                 return true;
             })
-            .on('contextmenu',function ctxmenu(evt){
-                if((buttons || evt.originalEvent.buttons) &1){
-                    return ellipsor.stopPropagation(evt.originalEvent);
+            .oneve('contextmenu',function ctxmenu(event){
+                if((buttons || event.buttons) &1){
+                    return ellipsor.stopPropagation(event);
                 }
             });
     }//end onOpen
 
-    static async onwheel(){
-        console.log('veeel');
+    static onwheel(){
         const bigwheel =-430;
         var delta =1 //(Zhad.options.parakeys.trackpad.filter(':checked').val() ||1)
                         *event.wheelDeltaY || event.wheelDelta;
-        var $bench =Zhad.$bench;
-        if($bench.is('.hidden')) return;
+        var bench =Zhad.bench;
+        if(bench.matches('.hidden')) return;
         //event.target is off on android tablet
-        var onrad =parseInt($bench.find('span.radical').first().data('strokes') || 0)
-            , inzho =Zhad.wheeling || document.elementsFromPoint(event.x, event.y).filter((v)=> v ===$bench[0]).length;
+        let rspan =bench.querySelector('span.radical:first-of-type')
+            , onrad =rspan ? parseInt(rspan.getAttribute('data-strokes') || 0) : 0
+            , inzho =Zhad.wheeling || document.elementsFromPoint(event.x, event.y).filter((v)=> v ===bench).length;
         try{
             if(delta < 0 && Zhad.spanStrokes ==0 && onrad)
                 return false;
             else if(delta < bigwheel && Math.max(delta, Zhad.wheeling) > bigwheel){	//huge unwind... goes to base
-                console.log(Zhad.wheeling +'>'+ delta);
                 Zhad.paged.length =0;
                 inzho =1;
             }
             else if(Zhad.wheeling || Math.abs(delta) <90){
                 return false;
             }
-            else console.log(delta);
         }
         finally{
             if(inzho){	//wheel inside bench will not scroll container, e.g., body
-                event.returnValue =false;
-                event.stopImmediatePropagation();
-                event.preventDefault();
+                ellipsor.stopPropagation(event);
             }
 
             setTimeout(()=>this.mkThumbs(), 0);	//clear fave dialog
         }//end try
 
         Zhad.wheeling =delta;
-        let banDescend =$bench.is('.flat')
-            ,whilst =new Promise(async (resolve) =>{
-                if(banDescend)
-                    clearTimeout(tmr);
-                else
-                    $bench.addClass('flat');
-
-                try{
-                    if(delta >0){
-                        let $ele =inzho ? $(document.elementFromPoint(event.x, event.y)).children('.jump:not([tip])')
-                            .addBack('.peeker,.flanker,.jump').first() :[];
-
-                        if(!banDescend && $ele.length && event.shiftKey !=Zhad.invertShiftScroll
-                            && $bench.has('.radical').length ){
-                            onrad =0;
-                            if($ele.is('.peeker,.flanker,[data-derived="2"]') || $ele.parent('div[data-jump]').length){
-                                $ele.mousedown();
-                            }
-                            else
-                                $bench.find('div[data-jump] > .jump').first().mousedown();
-                        }
-                        else if(!$bench.is('[data-scroll="stop"]') ){
-                            if( $bench.children().length ){
-                                Zhad.paged.push({"dsrc" :Zhad.dsrc,
-                                        "nstrokes": Zhad.spanStrokes});
-                            }
-                            this.show(parseInt($bench.find('span[data-strokes]').last().data('strokes')));
-                        }
-                    }else if(event.shiftKey	//load base state
-                        || Zhad.paged.length ==0
-                        || (event.buttons & 2) ==2){
-                        Zhad.paged.length =0;
-                        this.show(0, elevate(await Zhad.options.glyb.radicals));
-                        onrad =true;
-                    }else{
-                        let prior =Zhad.paged.pop();
-                        onrad =this.show(prior.nstrokes, prior.dsrc).onrad;
-                    }
-                }
-                finally{
-                    setTimeout(resolve, $(Zhad.options.parakeys.fastscro).is(':checked') ? 0: 100);
-                }//end try
-
-            });//end promise
-        await whilst;
-        setTimeout(()=>Zhad.wheeling =0, 500);
-        if(onrad)
-            tmr =setTimeout(()=>$bench.removeClass('flat',200), 500);
+        bench.classList.add("wheels");
+        let banDescend =bench.matches('.flat');
+        if(banDescend)
+            clearTimeout(tmr);
         else
-            $bench.removeClass('flat');
+            bench.classList.add('flat');
+
+        try{
+            if(delta >0){
+                let ele =inzho ? [document.elementFromPoint(event.x, event.y)]
+                        .any(e=>e.matches('.peeker,.flanker,[data-derived="2"]') ? e:
+                                e.matches('.jump') ? e.parentNode: void 0) :void 0
+                    ,jump;
+
+                if(!banDescend && ele && event.shiftKey !=Zhad.invertShiftScroll
+                    && bench.querySelector('.radical') ){
+                    onrad =0;
+                    if(ele.matches('.peeker,.flanker,[data-derived="2"]') || ele.querySelector(':scope > .jump')){
+                        ele.dispatchEvent(new MouseEvent('mousedown', {button:2}));
+                    }
+                    else if(jump =bench.querySelector('div[data-jump]'))
+                        jump.dispatchEvent(new MouseEvent('mousedown', {button:2}));
+                }
+                else if(!bench.matches('[data-scroll="stop"]') ){
+                    if( bench.children.length ){
+                        Zhad.paged.push({"dsrc" :Zhad.dsrc,
+                                "nstrokes": Zhad.spanStrokes});
+                    }
+                    this.show(parseInt(bench.querySelector('span[data-strokes]:last-of-type').getAttribute('data-strokes')));
+                }
+            }else if(event.shiftKey	//load base state
+                || Zhad.paged.length ==0
+                || (event.buttons & 2) ==2){
+                Zhad.paged.length =0;
+                this.show(0, elevate(Zhad.options.glyb.radicals));
+                onrad =true;
+            }else{
+                let prior =Zhad.paged.pop();
+                onrad =this.show(prior.nstrokes, prior.dsrc).onrad;
+            }
+        }
+        finally{
+        }//end try
+
+        setTimeout(()=>{
+                Zhad.wheeling =0;
+                bench.classList.remove("wheels");
+            }, 300);
+        if(onrad)
+            tmr =setTimeout(()=>bench.classList.remove('flat'), 300);
+        else
+            bench.classList.remove('flat');
 
         return false;
     }
@@ -301,16 +287,14 @@ class Zhad{
 
     async whereAt(glyph){
         let c
-            , bench =Zhad.$bench[0]
+            , bench =Zhad.bench
             , tile =bench.querySelector('[data-jump="up"]');
 
         try{
             if(window.getComputedStyle(bench).display ==='none'
-            || (c =glyph.replace(/^[ \t\r\n,-]*/u, '').charAt(0)).length ==0);
+            || (c =glyph.replace(/^[ \t\r\n,-]*/u, '').firstchar).length ==0);
 
-            else if( tile !==null && tile.textContent.indexOf(c) >=0 ){
-                console.log('knack');
-            }
+            else if( tile !==null && tile.textContent.indexOf(c) >=0 );//is hilit
             //is in current range
             else if( bench.textContent.indexOf(c) >=0 ){
                 Array.from(bench.querySelectorAll('.jump'))
@@ -323,7 +307,7 @@ class Zhad{
                     Zhad.current = node.radical +' '+node.n+"+";
                     let k =node.r -1;
                     this.show( node.strokes-1
-                        , await Zhad.options.glyb.querySelectorAll("[radical='"+node.radical.charAt(0)+"'] > *")
+                        , await Zhad.options.glyb.querySelectorAll("[radical='"+node.radical.firstchar+"'] > *")
                         , c );
                     Zhad.paged.length =0;	//don't stack up history
                 }
@@ -352,7 +336,7 @@ class Zhad{
     }
 
     mkParakeys(template, props){
-        let parsky =[], io =this;
+        let parsky =document.createDocumentFragment(), io =this;
 
         if(!document.querySelectorAll('#parakeys').length){
             for( var glif in template ){
@@ -360,20 +344,20 @@ class Zhad{
                     let parakey =parakeys[glif];
                     if( typeof(parakey) =='function'){
                         try{
-                            var $p =parakey(props[glif]);
+                            var p =parakey(props[glif]);
                         }
                         catch(e){
-                            $p =$("<div class='jump'/>").text(glif)
-                                    .data("mousedown", parakeys[glif])[0];
+                            p =elementary.craate("div", {"class":'jump',"textChild": glif
+                                    ,"mousedown": parakeys[glif]});
                         }
                         finally{
                             let props={},
-                                attr =Array.from($p.attributes).filter(x=>x.name.indexOf('data-title')>=0);
+                                attr =Array.from(p.attributes).filter(x=>x.name.indexOf('data-title')>=0);
                             if(attr.length){
                                 props[attr[0].name] =attr[0].value;
-                                $p.removeAttribute(attr[0].name);
+                                p.removeAttribute(attr[0].name);
                             }
-                            parsky.push( $("<div class='parakey'/>").append($p).attr(props) );
+                            parsky.appendChild( elementary.create("div",["class",'parakey', props]).appendChild(p).parentNode );
                         }
                     }
 
@@ -384,82 +368,87 @@ class Zhad{
                             props[attr[0].name] =attr[0].value;
                             parakey.removeAttribute(attr[0].name);
                         }
-                        parsky.push( $("<div class='parakey'/>").append(parakey)
-                            .attr(props)
-                            .addClass(parakey.classList.contains('dumb') ? 'dumb':'') );
+                        parsky.appendChild( elementary.create("div", [props
+                                ,"class", 'parakey'+(parakey.classList.contains('dumb') ? ' dumb':'')])
+                                .appendChild(parakey).parentNode );
                     }
                     else{
-                        parsky.push($('<div class="parakey"/>')
-                                    .append($('<div class="jump">').text(glif)
-                                                .data({"value":parakey})));
+                        parsky.appendChild(elementary.create('div', {"class":"parakey"})
+                                    .appendChild(elementary.create('div'
+                                        , {"class":"jump","textChild":glif, "value":parakey})
+                                    ).parentNode);
                     }
                 }
             }//end loop
-            let $parakeys =$('<span id="parakeys" class="once">').append(parsky);
+            let _parakeys =elementary.create('span',{id:"parakeys", class:"once"})
+            _parakeys.appendChild(parsky);
 
-            let btnClose =$('<div class="parakey" id="btnclose" data-title="Close">')
-                     .on("click", ()=>Zhad.$bench[0].classList.add('hidden'))
-                     .append($('<img alt="●"/>')
-                            .attr("src", chrome.runtime.getURL("/images/x.png")));
+            let btnClose =elementary.create('div',
+                    {class:"parakey",id:"btnclose","data-title":"Close"
+                    ,"children":elementary.create('img',{"alt":"●","src": chrome.runtime.getURL("/images/x.png")})})
+                    .oneve("click", ()=>Zhad.bench.classList.add('hidden'));
 
-            return [$parakeys, btnClose];
+            return [_parakeys, btnClose];
         }
         return null;
     }//end mkParakeys
 
     async show(nstrokes, src, glyat){
-        chrome.storage.sync.get(['context'], (result)=>{
-            console.log(result.context);
-          });
-        var $canvas =this.$canvas = (this.$canvas || $('<span>').addClass('ellipser nauto thumbed hidden')).removeClass('detach');
-        if(!$canvas.parent().length){
-            Zhad.$bench.append($canvas);
+        src =await src;
+        var canvas =this.canvas
+            = (this.canvas || elementary.create('span',{"class":"ellipser nauto thumbed hidden"}));
+
+        if(canvas.parentNode){
+                canvas.innerHTML ="";
+                canvas.classList.remove('detach');
+        }
+        else{
+            Zhad.bench.appendChild(canvas);
         }
         try{
-            let rid =Zhad.pageID =Math.random();
+            let rid =Zhad.pageID =Math.random(), jump;
 
             let [isRadical, palette, isstopped, strokes, birds, names] =await this.mk(nstrokes, src, glyat);
-            $canvas.empty().append(palette);
+            canvas.attr("children", palette);
 
             //cheat list
             this.mkCheatah(rid, isRadical, birds);
 
-            if(birds.length ==0 || Zhad.$bench.find('[data-jump]').first().parents('.ellipser').length)
-                $canvas.addClass('detach');
+            if(birds.length ==0 || ((jump=Zhad.bench.querySelector('[data-jump]')) && jump.closest('.ellipser')))
+                canvas.classList.add('detach');
 
             clearTimeout(this.tmr ||0);
-            Zhad.spanStrokes =parseInt(palette[0][0].getAttribute('data-strokes')) -1;
-            Zhad.$bench.attr({'israd': isRadical ? 1:null
-                })
+            Zhad.spanStrokes =parseInt(palette[0].getAttribute('data-strokes')) -1;
+            Zhad.bench.attr({'israd': isRadical ? 1:null})
             .attr('data-scroll', isstopped ? 'stop':'more')
             .attr('data-strokes',
                         (isRadical ? '': '（'+ Zhad.current +'）\t')+
                         (Zhad.spanStrokes+1)
                         +'..\t'+
-                        palette[palette.length-1][0].getAttribute('data-strokes')
+                        palette[palette.length-1].getAttribute('data-strokes')
                         +(isstopped ? "":'●●'));
 
-            this.tmr =setTimeout(()=>Zhad.$bench.removeClass("hover", 500), 2000);
+            this.tmr =setTimeout(()=>Zhad.bench.classList.remove("hover"), 2000);
             if(isRadical){
-                let $hotc =Zhad.$bench.find('#hotc')
-                    , excludes =Array.from($hotc[0].querySelectorAll("[name]"))
+                let hotc =Zhad.bench.querySelector('#hotc')
+                    , excludes =Array.from(hotc.querySelectorAll("[name]"))
                         .map(x=>x.getAttribute("name"));
-                this.peekers(rid, $hotc);
-                this.flanks(rid, names, $hotc);
+                this.peekers(rid, hotc);
+                this.flanks(rid, names, hotc);
 
                 let lefs =await this.whimpets(rid, null, excludes);
-                $hotc.append(lefs.map(lef=>$('<div>').addClass('jump').text(lef.zi)
-                        .attr({'tip':1,'void':0,"data-derived":2, name:lef.name})));
+                hotc.attr("children", lefs.map(lef=>elementary.create("div", {"class":'jump',"textChild":lef.zi
+                        ,'tip':1,'void':0,"data-derived":2, "name":lef.name})));
             }
-            this.wireJump(Zhad.$bench, isRadical);
+            this.wireJump(Zhad.bench, isRadical);
 
-            let $strokes =$canvas.find('span[data-strokes] > div:first-child, div[data-derived]:not(.jump) ~ div:not([data-derived])');
-            $strokes.attr('data-strokes', function(){
-                let sib =this.previousSibling;
-                if(!sib || sib.matches('[data-derived]'))
-                    return this.parentNode.getAttribute('data-strokes');
-            });
-            return {wo:Zhad.$bench.addClass("hover"), onrad: isRadical};
+            let leads =canvas.querySelectorAll('span[data-strokes] > div:first-child, div[data-derived]:not(.jump) ~ div:not([data-derived])');
+            Array.from(leads).forEach(e=>{
+                    let sib =this.previousSibling;
+                    if(!sib || sib.matches('[data-derived]'))
+                        e.setAttribute('data-strokes', e.parentNode.getAttribute('data-strokes'));
+                });
+            return {wo:Zhad.bench.classList.add("hover"), onrad: isRadical};
         }
         catch(err){
             console.log(err);
@@ -469,7 +458,7 @@ class Zhad{
 
     async mk(nstrokes, src, glyat){
         Zhad.dsrc= src =src || Zhad.dsrc;
-        src =src.filter(x => parseInt(x.n || $(x).attr('n') ||1000) > nstrokes);
+        src =src.filter(x => parseInt((x.getAttribute ? x.getAttribute('n') :x.n) ||1000) > nstrokes);
         if(!src) throw("empty source src.");
 
         if(!src.length){
@@ -477,26 +466,26 @@ class Zhad{
         }
         let isRadical =(src instanceof Array && src.length && src[0].radical) || false;
 
-        //nstrokes =(nstrokes || parseInt(Zhad.$bench.find('span[data-strokes]').first().data('strokes')) || 1);
-
         let zis =await Zhad.options.glyb.pageOn(src, Zhad.options.tileLimit, isRadical);
 
         let [tiles, ender, strokes, birds] =await this.mkTiles(isRadical, zis, glyat);
-        let names =birds.map($e=>$e.attr('name'));
+        let names =birds.map(e=>e.getAttribute('name'));
 
         return [isRadical, tiles, ender, strokes, birds, names];
     }//end mk
 
-    async flanks(rid, names, $container){
+    async flanks(rid, names, container){
         let flanked ={}
             ,lengths =await Zhad.options.glyb.shelfLengths(names);
 
         for(let i of Object.keys(lengths)){
             if(lengths[i] >= 2 && 4 >= lengths[i])
-                $container[0].querySelectorAll('[name="'+i+'"]:not(.ligan):not(.jump)')
+                container.querySelectorAll('[name="'+i+'"]:not(.jump):not(.ligan)')
                     .forEach(x=>{
-                        flanked[i] =x.textContent;
-                        x.classList.add('flanked');
+                        if(lengths[i] ===2 || !x.classList.contains('ligan')){
+                            flanked[i] =x.textContent;
+                            x.classList.add('flanked');
+                        }
                     });
             else{
                 delete lengths[i];
@@ -506,17 +495,17 @@ class Zhad{
         let tiles =[]
             ,flankies =await Zhad.options.glyb.onshelf(Object.keys(flanked));
         for(let name of names){ //names is ordered by most visits
-            if(typeof flankies[name] ==='undefined') continue;
+            if(flankies[name] ===void 0) continue;
 
             for(let c of flankies[name].slice(1,4)){
-                let tile =$('<div class="flanker" void="0">')
-                    .text(c)
-                    .attr("name", name);
-                if(flanked[name].indexOf(c) >=0) tile.addClass('rid');
-                tiles.push(tile[0]);
+                let tile =elementary.create('div', {"class":"flanker", "void":"0"
+                    ,"textChild":c, "name": name});
+
+                if(flanked[name].indexOf(c) >=0) tile.classList.add('rid');
+                tiles.push(tile);
             }
         }
-        if(rid===Zhad.pageID) $container.append(tiles);
+        if(rid===Zhad.pageID) container.attr("children", tiles);
         this.wireJump(null,true,tiles);
     }
 
@@ -529,16 +518,20 @@ class Zhad{
             , hots =await Zhad.options.glyb.hots;
         let entertile =function(event){
             clearTimeout(tmThumb);
-            let $bench =Zhad.$bench
-                , tile =$(this).find('.jump').addBack('.jump')[0];
+            let bench =Zhad.bench
+                , tile =this.querySelector('.jump');
 
-                $bench.find('[data-jump]').removeAttr('data-jump');
+                Array.from(bench.querySelectorAll('[data-jump]')).forEach(e=>e.removeAttribute('data-jump'));
                 tile.parentNode.setAttribute('data-jump','up');
 
-                $bench[0].setAttribute('data-jump', $(event.target).text());
-                if(isRadical){
-                    let io =this;
-                    tmThumb =setTimeout(()=>tmThumb =wo.mkThumbs($(io).find('.jump[name]')[0], event), 100);
+                bench.setAttribute('data-jump', event.target.textContent);
+                if(isRadical && !Zhad.wheeling){
+                    //let rid = Zhad.pageID =Math.random();
+
+                    tmThumb =setTimeout(()=>{
+                        //if(rid ===Zhad.pageID)
+                        tmThumb =wo.mkThumbs(event.target, event);
+                    }, 75);
                 }
             };
         for(var k in tiles){
@@ -550,183 +543,183 @@ class Zhad{
                 rgxp.lastIndex =0;
                 let [tx, lit, derived, name] =rgxp.exec(haizi);
 
-                let	$dv =$('<div/>').addClass('jump')
-                .attr(derived ? {"data-derived": "1"}:{})
-                .text(lit);
-                let $tile =$("<div/>")
-                    .attr({"name": name || k
-                        //, "data-derived": derived ? "1" :null
-                        //, "data-strokes": (children.length ? null:k)
-                        })
-                    .attr(lit===glyat ? {"data-jump":"up"}:{})
-                    .attr(derived ? {"data-derived": "1"}:{})
-                    .on('mouseenter', entertile)
-                    .append($dv);
+                let	dv =elementary.create('div',
+                        {"class":"jump", "textChild":lit
+                        ,"data-derived":(derived ? "1":null)});
+                let tile =elementary.create("div",
+                        {"name": name || k
+                        ,"data-derived":(derived ? "1":null)
+                        ,"data-jump":lit===glyat ? "up":null
+                        ,"children": dv})
+                    .oneve('mouseenter', entertile);
 
-                if((y =hots[lit.charAt(0)]) /*&& (y>0 || isRadical)*/){
-                    birds.push( $tile.attr("visits", y) );
+                if((y =hots[lit.firstchar]) /*&& (y>0 || isRadical)*/){
+                    birds.push( tile.attr("visits", y) );
                 }
                 else
-                    children.push($tile);
+                    children.push(tile);
             }
 
-            let $dva =$("<span>")
-                .attr({"data-strokes":k
-                    ,class: isRadical ? 'radical':'steno'})
-                .append(children);
-            canvi.push($dva);
+            let dva =elementary.create("span",
+                    {"data-strokes":k
+                    ,class: isRadical ? 'radical':'steno'
+                    ,"children": children
+                    });
+            canvi.push(dva);
         }
         let boolStop =tiles[k]==="stop";
         return [canvi, boolStop ? "stop":null, parseInt(k)
-            , birds.sort(($l,$r) => parseInt($r.attr("visits")) -parseInt($l.attr("visits")))];
+            , birds.sort((l,r) => parseInt(r.getAttribute("visits")) -parseInt(l.getAttribute("visits")))];
     }//end mkTiles
 
-    async whimpets(rid, $root, excludes=[], nlimit = 3){
-        $root = $root || Zhad.$bench.filter('[israd="1"]').find('.ellipser');
-        let $leaf =$root.find('div[name]:not(.jump):not(.blu):not([data-derived="1"])');
+    async whimpets(rid, root, excludes=[], nlimit = 3){
+        root = root || Zhad.bench.querySelector('[israd="1"]:scope .ellipser');
+        let leaf =root.querySelectorAll('div[name]:not(.jump):not(.blu):not([data-derived="1"])');
         let qu =[]
             ,que =await Zhad.options.glyb.qu;
-        for(let laf of $leaf){
-            //if($(laf).text().length > 1) continue;
+        for(let laf of Array.from(leaf)){
+
             let k =laf.getAttribute('name');
             if(excludes.indexOf(k) >=0) continue;
 
-            let lef =(!(que instanceof Promise) && que && que[k]) || await Zhad.options.glyb.shelfup(laf.textContent.charAt(0));
+            let lef =(!(que instanceof Promise) && que && que[k]) || await Zhad.options.glyb.shelfup(laf.textContent.firstchar);
             if(lef) qu.push(...lef.slice(1,nlimit).map(x=>{return {"zi":x,"name":k}}) );
         }
         return rid ===Zhad.pageID ? qu : [];
     }
 
-    async peekers(rid, $container){
+    async peekers(rid, container){
         let glyb =Zhad.options.glyb
             ,hots =glyb.hottops(100)
-            ,present =Array.from(Zhad.$bench[0].querySelectorAll('[name]'))
+            ,present =Array.from(Zhad.bench.querySelectorAll('[name]'))
                 .map(v=>parseInt(v.getAttribute("name")))
             ,peeked =[];
         for(let c of (await hots)){
             let r =(await glyb.glyphRootNode(c)).r;
             if(present.indexOf(r-1) ===-1){
-                let tile =$('<div class="peeker" void="0">')
-                    .text(c)
-                    .attr("name", r-1);
+                let tile =elementary.create('div', {"class":"peeker", "void":"0","textChild":c, "name": r-1});
 
-                if(peeked.push(tile[0]) >=10) break;;
+                if(peeked.push(tile) >=10) break;;
             }
         }
         if(rid ===Zhad.pageID){
-            $container.append(peeked);
+            container.attr("children", peeked);
             this.wireJump(null,true,peeked);
         }
     }
 
     async mkThumbs(glyph, evt, above = false){
-        let $bucket =Zhad.$bench.find('div#qu');
+        let bucket =Zhad.bench.querySelector('div#qu');
         if(!glyph){
-            $bucket.empty();
+            bucket.innerHTML ="";
             return 0;
         }
 
         const qumousemov =function(evt){
                 evt =evt.originalEvent || evt;
-                if(Zhad.thumbvue.left <= evt.x && evt.x <= Zhad.thumbvue.right
+                if(!Zhad.thumbvue);
+                else if(Zhad.thumbvue.left <= evt.x && evt.x <= Zhad.thumbvue.right
                 && Zhad.thumbvue.top <= evt.y && evt.y <= Zhad.thumbvue.bottom ){
-                    Zhad.$bench.off("mousemove", qumousemov);
-                    Zhad.$bench.find('div#qu').removeClass("nomie");
-                    //console.log( $._data( Zhad.$bench[0], "events" ) );
+                    Zhad.bench.offeve("mousemove", qumousemov);
+                    Zhad.bench.querySelector('div#qu').classList.remove("nomie");
                 }
             };
         let eles =document.elementsFromPoint(Zhad.moxy.x,Zhad.moxy.y).slice(0,3);
 
         evt =(event||evt);
-        glyph =$(glyph).parents('.thumbed').find('[data-jump]').find('.jump')[0];
 
         if(!glyph || glyph.matches(".qu"))
             return 0;
-        else if(glyph && $bucket.is(":not(:empty)") && $bucket.data('root') ===glyph)
-            $bucket[0].classList.remove('maskout','ghoul','limbo');
+        else if(glyph && bucket.matches(":not(:empty)") && bucket.fn('root') ===glyph)
+            bucket.classList.remove('maskout','limbo');
         else if( eles[0].matches('.qu') ){
             console.log(glyph.textContent);
         }
-        else if(eles.find(e=>[e, ...e.children].indexOf(glyph) >=0) && $bucket.removeClass("sideleft narrow")
-                .addClass('maskout limsbo ghoul nomie',0)
-                .data('root', glyph)){
-            clearTimeout(Zhad.thumbvue);
-            Zhad.$bench.off("mousemove", qumousemov);
+        else if(eles.find(e=>[e, ...e.children].indexOf(glyph) >=0) && bucket.fn('root', glyph)){
+            bucket.classList.remove("sideleft","narrow");
+            bucket.classList.add('nomie','maskout','limbo');
+            clearTimeout(Zhad.tmThumbme);
+            Zhad.bench.offeve("mousemove", qumousemov);
 
-            let qu = await Zhad.options.glyb.shelfup(glyph.textContent.charAt(0))
-                ,ch =glyph.textContent.charAt(0);
+            let qu = await Zhad.options.glyb.shelfup(glyph.textContent.firstchar)
+                ,ch =glyph.textContent.firstchar;
             if(!qu || qu.length <=1 || (qu[0]===1 && qu[1]===ch) ) return 0;
 
             let wo =this
-                ,lu=[];
-            qu.slice(1, Math.min(peekmax, Math.max(qu[0], peekcount)))//.reverse()
+                ,lu=document.createDocumentFragment();
+            qu.slice(1, Math.min(peekmax, Math.max(qu[0], peekcount)))
                 .sort((l,r)=>l===ch ? -1:0)
-                .forEach((g,i)=>lu.push($('<div class="qu">').text(g).addClass(()=>g==ch ? 'rid':null)));
+                .forEach((g,i)=>lu.appendChild(elementary.create('div'
+                    , {"class":"qu"+(g==ch ? ' rid':''), "textChild": g})));
 
-            if(lu.length <=15) $bucket.addClass("narrow");
+            if(lu.children.length <=15) bucket.classList.add("narrow");
 
-            $bucket.empty().append(lu);
+            bucket.innerHTML ="";
             const  penleave =function(evt){
                     clearInterval(Zhad.tmleave);
                     Zhad.tmleave =setInterval(()=>{
                         let cell=[document.elementFromPoint(Zhad.moxy.x, Zhad.moxy.y)];
-                        if(cell.filter(x=>x===$bucket.data('root')).length ===0){
+                        if(cell.filter(x=>x===bucket.fn('root')).length ===0){
                             clearInterval(Zhad.tmleave);
-                            //$bucket[0].classList.add('maskout');
                             Zhad.moxy ={x:0,y:0};
-                            $bucket.empty();
+                            bucket.innerHTML ="";
                         }
-//                        else console.log(cell);
+
                         }, isNaN(evt) ? 500: evt);
                 };
             penleave(600);
 
-            $bucket.children('.qu')
-                .on('mousedown', function clickqu(){
-                    if( $(this).parents('#qu').is('.limbo') ){
-                        $(document.elementsFromPoint(event.x, event.y).slice(3,3)).trigger($.Event('mousedown',event));
+            lu.childNodes.forEach(qu=>{
+                qu
+                .oneve('mousedown', function clickqu(){
+                    if( this.parentNode.classList.contains('limbo') ){
+                        document.elementsFromPoint(event.x, event.y).slice(3,3)[0]
+                            .dispatchEvent(new MouseEvent('mousedown',event));
                     }
                     else if((event.buttons&7) >=3)
-                        $bucket.empty();
+                        bucket.innerHTML ="";
                     else
                         wo.post()(event);
                     return ellipsor.stopPropagation(event);
                     })
-                .on('mouseenter',function quent(){
+                .oneve('mouseenter',function quent(){
                     clearInterval(Zhad.tmleave);
-                    Zhad.$bench.attr('data-jump', this.textContent);
+                    Zhad.bench.setAttribute('data-jump', this.textContent);
+
                     })
-                .on('mouseleave', penleave)
-                .on('contextmenu',()=>{
+                .oneve('mouseleave', penleave)
+                .oneve('contextmenu',()=>{
                     return ellipsor.stopPropagation(event);
                 });
+            });
+
+            bucket.appendChild(lu);
             if(this.positionThumbs(glyph))
-                Zhad.tmThumbme =setTimeout(()=>Zhad.$bench.on("mousemove", qumousemov), 100);
+                Zhad.tmThumbme =setTimeout(()=>Zhad.bench.oneve("mousemove", qumousemov), 0);
 
         }//end if
         return 0;
     }//end mkThumbs
 
     positionThumbs(glyph, above =0){
-        let $this =Zhad.$bench.find('div#qu')[0]
-            , lu =$this.querySelectorAll('.qu')
-            , bench =$this.parentNode;
+        let _this =Zhad.bench.querySelector('div#qu')
+            , lu =_this.querySelectorAll('.qu')
+            , bench =_this.parentNode;
         if(lu.length ===0 || !glyph || glyph.matches(".qu")) return false;
 
         let thumhi =lu[0].offsetHeight;
-        let coord =window.getComputedStyle(glyph)
-            , xy =glyph.offsets(bench)
+        let xy =glyph.offsets(bench)
             , h =glyph.offsetHeight
-            , x =bench.offsetWidth -(xy.left +(glyph.offsetWidth/2)) // -Math.floor($this.offsetWidth /3)
+            , x =bench.offsetWidth -(xy.left +(glyph.offsetWidth/2))
             , y =//(window.scrollY+window.visualViewport.height)
                 bench.offsetHeight
                  -(h+xy.top+thumhi) +(above ? (h*.8):0);
 
         if(xy.left > (bench.offsetWidth*1/6))
-            $this.style.css({"bottom": y+'px', "left":"", "right": x+'px'});
+            _this.style.css({"bottom": y+'px', "left":"", "right": x+'px'});
         else{
-            $this.classList.add("sideleft");
-            $this.style.css({"bottom": y+'px', "left":(xy.left)+'px'});
+            _this.classList.add("sideleft");
+            _this.style.css({"bottom": y+'px', "left":(xy.left)+'px'});
         }
 
         setTimeout(()=>{
@@ -736,18 +729,15 @@ class Zhad{
                 try{
                     lu[topties.length-1].classList.add('top-ends')
 
-                    let tall =parseFloat($this.offsetHeight)
+                    let tall =parseFloat(_this.offsetHeight)
                         , ny =y +thumhi-tall;
-                    $this.style.bottom= ny+'px';
+                    _this.style.bottom= ny+'px';
                 }
-                catch{
-                    //console.log([h,x,y])
-                }
+                catch{}
             }
 
-            setTimeout(()=>$this.classList.remove('maskout','limbo','ghoul'), 10);
-            Zhad.thumbvue =$this.getClientRects()[0] || {};
-            //console.log(Zhad.thumbvue);
+            _this.classList.remove('maskout','limbo');
+            Zhad.thumbvue =_this.getClientRects()[0] || {};
 
         },10);
 
@@ -756,117 +746,106 @@ class Zhad{
 
 
     mkCheatah(rid, isRadical, birds){
-        let $ligan =$('<span/>').addClass('ligan flexbug rfloat');
+        let ligan =elementary.create('span',{class:'ligan flexbug rfloat'});
         let reds =0, uniqueNames =[]
-            ,$priots = $(this.$priots || Zhad.$bench[0].querySelector('#hotc') || '<span id="hotc" class="zhongwen-void thumbed busy"/>');
+            ,priots = this.priots || Zhad.bench.querySelector('#hotc')
+                 || elementary.create("span", {id:"hotc",class:"zhongwen-void thumbed busy"});
 
-        $priots.empty().append($ligan);
+        priots.innerHTML ="";
+        priots.appendChild(ligan);
 
         if(birds.length ===0){
-            $priots.addClass("isempty");
+            priots.classList.add("isempty");
             return;
         }
         else{
-            $priots.removeClass("isempty");
+            priots.classList.remove("isempty");
         }
 
         //cheat list
-        Zhad.$bench.find('div#qu').empty();
+        Zhad.bench.querySelector('div#qu').innerHTML ="";
         let freqs =[];
 
-        for(let $hoti of birds){
+        for(let hoti of birds){
 
-            let glyph =$hoti[0].textContent.charAt(0)
-                ,encount =parseInt($hoti.attr('visits'))
-                ,name =$hoti.attr("name");
+            let glyph =hoti.textContent.firstchar
+                ,encount =parseInt(hoti.getAttribute('visits'))
+                ,name =hoti.getAttribute("name");
             if(!isRadical);
             else if(encount <0 || uniqueNames.indexOf(name)===-1)
                 uniqueNames.push(name);
             else
                 continue;
 
-            if($priots[0].textContent.replace(/[\[\(].*?[\]\)]/ug,'').includes(glyph)) continue;
-
-            let io =this
-                ,$jump =$hoti.find('.jump');
-            $($hoti).on('mouseenter', function(evn, dat){
-                    clearTimeout(tmThumb);
-                    Zhad.$bench.find('[data-jump]').removeAttr('data-jump');
-                    $($hoti).attr('data-jump','up');
-                    Zhad.$bench.attr('data-jump', this.textContent);
-
-                    if(isRadical){
-                        let evt =event;
-                        if(dat) evt.data =dat;
-                        let glyph =this.matches("[name]") ? this :this.querySelector('.jump[name]');
-
-                        tmThumb =setTimeout(()=>tmThumb =io.mkThumbs(glyph, evt), 100);
-                    }
-                });
+            if(priots.textContent.replace(/[\[\(].*?[\]\)]/ug,'').includes(glyph)) continue;
 
             if(encount <0){
                 if(isRadical){
-                    $ligan.append($hoti);	//just move node
-                    $hoti.addClass('ligan').find('.jump').text(glyph)
-                        .attr({name:name, 'data-derived':1});	//truncate the ligans
+                    hoti.attr({"name":name, 'data-derived':1}).classList.add('ligan');
+                    ligan.appendChild(hoti);	//just move node
+                    hoti.querySelector('.jump').textChild =glyph;	//truncate the ligans
                 }
-                else
-                    freqs.push( $hoti.addClass("rid") );
+                else if(freqs.push( hoti ))
+                    hoti.classList.add("rid");
 
                 continue;
             }
             else
-                freqs.push( $hoti );
+                freqs.push( hoti );
 
             if(encount ===1) continue;
             else if(++reds <=4)
-                $hoti.addClass('reds');
+                hoti.classList.add('reds');
             else if(encount >2);
             else if(reds > 14){
-                $hoti.addClass('verti');
+                hoti.classList.add('verti');
             }
-            $hoti.addClass('blu');
+            hoti.classList.add('blu');
 
-            if(encount >1)	$hoti.attr('tip', encount);
+            if(encount >1)	hoti.attr('tip', encount);
         }//end loop
-        $priots.append( freqs );
+        priots.attr("children", freqs);
 
-        let ligi =new RegExp('['+$ligan[0].textContent+']');
-        $priots.find('div:not(.ligan):not(.jump)')
-            .filter((i,e)=>ligi.test(e.textContent)).addClass('hidden');
+        let ligi =new RegExp('['+ligan.textContent+']');
+        Array.from(priots.querySelectorAll('div:not(.ligan):not(.jump)'))
+            .filter(e=>ligi.test(e.textContent))
+            .forEach(e=>e.classList.add('hidden'));
 
-        if(!$priots.parent().length){
-            Zhad.$bench.find('#qu').after($priots);
-            chrome.storage.sync.get(['context'], (context)=>{if(!context.context.busyPage) $priots.removeClass('busy');});
-            this.$priots =$($priots[0]);
+        if(!priots.parentNode){
+            Zhad.bench.querySelector('#qu').insertAdjacentElement('afterend', priots);
+            chrome.storage.sync.get(['context'], (context)=>{
+                if(chrome.runtime.lastError);
+                else if(!context.context.busyPage)
+                    priots.classList.remove('busy');
+                });
         }
 
         switch(true){
-        case $ligan.children().length ==0:
+        case ligan.children.length ==0:
             break;
 
-        case $ligan.children().length <10:
-            $ligan.addClass('pint'); //.css('height', '3em');
+        case ligan.children.length <10:
+            ligan.classList.add('pint'); //.css('height', '3em');
         default:
-            setTimeout(()=>flexbug.resizeFlexColumn(Zhad.$bench.find('.ligan.flexbug.rfloat'), 3),20);
+            setTimeout(()=>flexbug.resizeFlexColumn(Zhad.bench.querySelector('.ligan.flexbug.rfloat'), 3),20);
         }//end switch
     }//end mkCheatah
 
-    wireJump($canvas, isRadical, aryl){
+    wireJump(canvas, isRadical, aryl){
         let io =this
-            ,$parakeys =Zhad.$bench.find('#parakeys.once .parakey:not(.dumb)');
-        let $tiles = aryl ? $(aryl)
-            : $(Array.from($canvas[0].querySelectorAll('.jump'))
+            ,parakeys =Zhad.bench.querySelectorAll('#parakeys.once .parakey:not(.dumb)');
+        let tiles = aryl ? aryl
+            : Array.from(canvas.querySelectorAll('.jump'))
                 .filter(x=>x.parentNode && !x.parentNode.matches('.parakey'))
-                .map(v=>v.matches('.peeker, [data-derived="2"]') ? v : v.parentNode))
-                .add($parakeys);
-        $tiles
-            .on('mousedown', async function(){
+                .map(v=>v.matches('.peeker, [data-derived="2"]') ? v : v.parentNode);
+        tiles.push(...parakeys);
+        tiles.forEach(e=>e
+            .oneve('mousedown', async function(){
                 event.preventDefault();
                 event.stopPropagation();
                 if(this.classList.contains('parakey')){
-                    let $this =$(this).find('.jump');
-                    io.post()(event, $this.data('value') || $this.data('mousedown'));
+                    let _this =this.querySelector('.jump, img');
+                    io.post()(event, _this.fn('value') || _this.fn('mousedown'));
                 }
 
                 else if(event.which ==1 || !isRadical){
@@ -876,23 +855,22 @@ class Zhad{
                     Zhad.paged.push({"dsrc" :Zhad.dsrc,
                             "nstrokes": Zhad.spanStrokes});
 
-                    let $target =$(this)
-                        , strokes =await Zhad.options.glyb.querySelectorAll('entry[radical]');
-                    var rglyph =new RegExp('[' +$target.text().replace(/^([^ ]+)(.*?([^ ,\.\t:\[\(\)\]]).*|.*)$/gu,'$3$1')+ ']', 'gu'),
-                        idx =parseInt($target.find('[data-derived]').addBack('.peeker,.flanker,[data-derived]').attr('name') || -1);
+                    let strokes =await Zhad.options.glyb.querySelectorAll('entry[radical]');
+                    var rglyph =new RegExp('[' +this.textContent.replace(/^([^ ]+)(.*?([^ ,\.\t:\[\(\)\]]).*|.*)$/gu,'$3$1')+ ']', 'gu'),
+                        idx =parseInt(this.getAttribute('name') || -1);
 
-                    let zod = strokes.filter((x,n)=> rglyph.test(x.radical) || n ==idx )[0];
+                    let zod = strokes.filter((x,n)=> rglyph.test(x.radical) || n ==idx ).reverse()[0];
                     Zhad.current =zod.radical +' '+zod.n+"+";
                     io.show( 0,await Zhad.options.glyb.querySelectorAll("[radical='"+zod.radical+"'] > *") );
                 }
             })
-        .on('contextmenu', function(evt){
+            .oneve('contextmenu', function(evt){
                     return ellipsor.stopPropagation(evt.originalEvent);
-                });
-        Zhad.$bench.find('#parakeys').removeClass('once');
+                }));
+        Zhad.bench.querySelector('#parakeys').classList.remove('once');
     }//end wireJump
 
-    post($target,r){
+    post(target,r){
         let sr =window.getSelection()
         return async (event, spoon)=>{
                 let focusNode =sr.focusNode;
@@ -929,7 +907,7 @@ class Zhad{
                     txVal =spoon;
                 }
                 else{
-                    txVal =event.target.textContent.charAt(0) || "";
+                    txVal =event.target.textContent.firstchar;
                     Zhad.options.glyb.rank(txVal);
                 }
 
@@ -945,12 +923,12 @@ class Zhad{
 
                 else if( (Zhad.tx && Zhad.tx instanceof Range)
                  || (!txLocked && focusNode
-                    && $(focusNode).parents().filter((i,x)=>x===Zhad.$bench[0]).length===0) ){
+                    && !focusNode.parentNode.closest('#zhong')) ){
                     let rtxt =document.createRange()
                         ,etxt =document.createTextNode(txVal)
-                        ,spot =$("<mark fore/>")
-                            .attr({"data-content": txVal
-                                ,"undo":++Zhad.undo})[0];
+                        ,spot =elementary.create("mark", {"fore":1
+                                ,"data-content": txVal
+                                ,"undo":++Zhad.undo});
                     let range =Zhad.tx && Zhad.tx instanceof Range ? Zhad.tx : sr.getRangeAt(0);
 
                     sr.deleteFromDocument();
@@ -962,7 +940,6 @@ class Zhad{
                     sr.addRange(rtxt);
                     rtxt.setStart(etxt, txVal.length);
 
-                    //console.log($(etxt).position());
                     Zhad.tx =etxt;
 
                     setTimeout(()=>{
@@ -975,9 +952,9 @@ class Zhad{
                     let rtxt =document.createRange()
                         ,ltxt =document.createRange()
                         ,etxt =document.createTextNode(txVal)
-                        ,spot =$("<mark fore/>")
-                            .attr({"data-content": txVal
-                                ,"undo":++Zhad.undo})[0];
+                        ,spot =elementary.create("mark", {"fore":1
+                                ,"data-content": txVal
+                                ,"undo":++Zhad.undo});
 
                     ltxt.selectNodeContents(Zhad.tx);
                     ltxt.setStart(Zhad.tx, Zhad.tx.data.length);

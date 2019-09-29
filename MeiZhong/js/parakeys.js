@@ -4,15 +4,16 @@ const __editables =['[contenteditable="true"]', 'input','textarea','#text'];
 //export
 const parakeys ={
     "sp":" ", "¶":"\n"
-    //,"’ ƒ":new RegExp("‘$1’"), "” ƒ":new RegExp("“$1”")
     ,"’ ƒ":/‘$1’/, "” ƒ":/“$1”/
     ,"ghoul": (wo)=>{ let title ='Toggle\nunvisited';
-        return $('<img src={ghost} alt="●" class="simpel" />')
-                .on("click", (evt)=>{
+        return elementary.create('img',{"alt":"●", "class":"simpel", "data-title-left" :title,
+                    "src":chrome.runtime.getURL("/images/ghoul.png"),
+                    "style":"max-width:1.28em;"})
+                .oneve("click", (evt)=>{
                         if(wo && wo.toggle)
                             wo.toggle("hidden");
                         else{
-                            let root =$(evt.target).parents('#parakeys')[0].parentNode,
+                            let root =evt.target.closest('#parakeys').parentNode,
                                 booltrad =root.matches(".traditional");
                             let elip =root.querySelector('.ellipser');
                             if(!booltrad && ['simpel','hidden'].filter(c=>elip.classList.contains(c)).join('') ==='simpel'){
@@ -24,15 +25,12 @@ const parakeys ={
                                 evt.target.parentNode.parentNode.classList.add("simpel");
                             }
                         }
-                    })
-                .attr({"src" :chrome.runtime.getURL("/images/ghoul.png"),
-                    "data-title-left" :title})
-                .css({"max-width" :"1.28em"})[0];
+                    });
 
         }
 
-    ,"draghand": $('<img alt="●" class="dumb" data-title="drag\nhandle"/>')
-                .attr("src", chrome.runtime.getURL("/images/mikih.png"))[0]
+    ,"draghand": elementary.create('img',{"alt":"●","class":"dumb", "data-title":"drag\nhandle"})
+                .attr("src", chrome.runtime.getURL("/images/mikih.png"))
     ,"focus": (content)=>{ let title ='Output target\nLockdown';
             let fn= ()=>{
                     if(event.target.classList.toggle("active")){
@@ -41,7 +39,7 @@ const parakeys ={
                             focus =target;
                         if(__editables.indexOf(target.nodeName) >=1) target =target.parentNode;
                         target.classList.toggle("meiolocker");
-                        //let cmpu =window.getComputedStyle(target);
+
                         let cmpu =target.getBoundingClientRect();
                         if(parseInt(cmpu.left) <= 0) target.classList.add("aftr");
 
@@ -59,9 +57,8 @@ const parakeys ={
                         return {type:'focus'};
                     }
                 };
-        return $("<div id='meiolocker' class='jump'/>").text("●")
-        .data({"mousedown" :fn})
-        .attr({"data-title-left" :title})[0];
+        return elementary.create("div", {"id":'meiolocker', "class":'jump'
+            ,"data-title-left" :title, "mousedown" :fn, "textChild":"●" });
     }
 
     ,"灭 ƒ": ()=>{ let title ='List top\ncommon\nglyphs';
@@ -69,9 +66,9 @@ const parakeys ={
             if(wo && wo instanceof zhoChat){
                 let lnwidth =20;
                 if(dest instanceof Selection && dest.baseNode){
-                    let $dest =$(dest.baseNode.nodeName==="#text" ? dest.baseNode.parentNode : dest.baseNode);
-                    let fosz =parseInt($dest.css('font-size'))
-                        ,w =$dest.parent().width();
+                    let _dest =(dest.baseNode.nodeName==="#text" ? dest.baseNode.parentNode : dest.baseNode);
+                    let fosz =parseInt(window.getComputedStyle(_dest).getPropertyValue('font-size'))
+                        ,w =_dest.parentNode.offsetWidth;
                         lnwidth =parseInt(1.4*w/fosz) || lnwidth;
                     console.log(lnwidth);
                     return wo.hotlines(300,lnwidth);
@@ -79,20 +76,17 @@ const parakeys ={
                 else return wo;
             }
         }
-        return $("<div class='jump'/>").text("灭 ƒ")
-            .data({"mousedown" :fn})
-            .attr({"data-title-left" :title})[0];
+        return elementary.create("div",{"class":'jump',"textChild":"灭 ƒ","mousedown" :fn, "data-title-left" :title});
     }
 
     ,"∞ƒ": (context)=>{ let title ='Recalibrate';
-            return $('<img  alt="●">')
-                    .attr({"data-title-left" :title,
-                        "src" :chrome.runtime.getURL("/images/compass-je.png")})
-                    .css({"max-width":"1.28em"})
-                    .on('click', (evt, wo)=>{
+            return elementary.create("img", {"alt":"●","data-title-left" :title,
+                        "src" :chrome.runtime.getURL("/images/compass-je.png"),
+                        "style":"max-width:.28em;"})
+                    .oneve('click', (evt, wo)=>{
                         if(context && context instanceof zhoChat)
                             return context.rx(true);
-                    })[0];
+                    });
         }
     ,"拇ƒ": ()=>{ let title ='Thumbs\ndata';
         let fn=async (wo)=>{
@@ -117,9 +111,8 @@ const parakeys ={
             }
         };
 
-        return $('<div class="jump"/>').text("拇ƒ")
-            .data({"mousedown" :fn})
-            .attr({"data-title-left" :title})[0];
+        return elementary.create('div',{"class":"jump","textChild":"拇ƒ"
+                ,"data-title-left" :title, "mousedown" :fn});
         }
 
     // ,"histscro": $('<input type="checkbox" data-title="Enable\nscroll history"/>')
