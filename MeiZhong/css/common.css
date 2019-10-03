@@ -57,11 +57,3 @@
 	src:url("chrome-extension://__MSG_@@extension_id__/css/fonts/MicrosoftJhengHeiUIRegular.woff") format("woff");
 	font-weight:400;
 }
-
-#zhong.hidden, #zhong .hidden{
-	display:none!important;
-}
-#zhong.maskout, #zhong .maskout{
-	opacity:0!important;
-	pointer-events:none;
-}

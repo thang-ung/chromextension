@@ -32,7 +32,7 @@ const parakeys ={
     ,"draghand": elementary.create('img',{"alt":"●","class":"dumb", "data-title":"drag\nhandle"})
                 .attr("src", chrome.runtime.getURL("/images/mikih.png"))
     ,"focus": (content)=>{ let title ='Output target\nLockdown';
-            let fn= ()=>{
+            let fn= (event)=>{
                     if(event.target.classList.toggle("active")){
                         let sr =window.getSelection(),
                             target =sr.focusNode,
@@ -62,7 +62,7 @@ const parakeys ={
     }
 
     ,"灭 ƒ": ()=>{ let title ='List top\ncommon\nglyphs';
-        let fn =(wo, dest)=>{
+        let fn =(evt, wo, dest)=>{
             if(wo && wo instanceof zhoChat){
                 let lnwidth =20;
                 if(dest instanceof Selection && dest.baseNode){
@@ -89,7 +89,7 @@ const parakeys ={
                     });
         }
     ,"拇ƒ": ()=>{ let title ='Thumbs\ndata';
-        let fn=async (wo)=>{
+        let fn=async (evt, wo)=>{
             if(wo && wo instanceof zhoChat){
                 let $postee =window.getSelection()
                     , srtxt=$postee.toString();

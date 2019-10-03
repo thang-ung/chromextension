@@ -10,8 +10,8 @@
    "content_scripts": [ {
       "all_frames": false,
       "css": [ "css/common.min.css",
-            "css/jstd.css",
-            "css/zhosteno.css" ],
+            "css/shared.css",
+            "css/jstd.css" ],
       "js": [ "minified/utils.min.js",
             "minified/zhoChat.min.js",
             "minified/flexbug.min.js",
@@ -39,6 +39,6 @@
    },
    "permissions": [ "contextMenus", "tabs", "activeTab", "storage" ],
    "short_name": "MeiZhong",
-   "version": "1.0.2",
+   "version": "1.0.4",
    "web_accessible_resources": [ "css/*", "js/*", "images/*" ]
 }

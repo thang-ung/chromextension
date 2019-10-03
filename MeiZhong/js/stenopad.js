@@ -37,32 +37,31 @@ class Zhad{
         let io =this;
         if(!Zhad.options.glyb) Zhad.options.glyb = new zhoChat();
         this.onwheel =Zhad.onwheel.bind(this);
+        let root =document.querySelector("div#extension-zhopad");
 
-        if( !document.querySelector("#zhong") ){
+        if( !root ){
             Zhad.bench.classList.add("ui-widget","ui-stenozo");	//makes rerunable easier
-            let root =document.querySelector("div#extension-zhopad");
             if(!root){
                 document.body.parentNode.appendChild(root =elementary.create("div", {"id":'extension-zhopad'}));
             }
-            root.appendChild(Zhad.bench);
-            // var shadow = root.attachShadow({mode: 'open'});
-            // shadow.appendChild(elementary.create('link',{rel:"stylesheet", type:"text/css", href:chrome.runtime.getURL("css/common.min.css")}));
-            // shadow.appendChild(elementary.create('link',{rel:"stylesheet", type:"text/css", href:chrome.runtime.getURL("css/jstd.css")}));
-            // shadow.appendChild(elementary.create('link',{rel:"stylesheet", type:"text/css", href:chrome.runtime.getURL("css/zhosteno.css")}));
-            // shadow.appendChild(Zhad.bench);
+
+            Zhad.shadow = root.attachShadow({mode: 'open'});
+            Zhad.shadow.appendChild(elementary.create('link',{rel:"stylesheet", type:"text/css", href:chrome.runtime.getURL("css/jstd.css")}));
+            Zhad.shadow.appendChild(elementary.create('link',{rel:"stylesheet", type:"text/css", href:chrome.runtime.getURL("css/shared.css")}));
+            Zhad.shadow.appendChild(elementary.create('link',{rel:"stylesheet", type:"text/css", href:chrome.runtime.getURL("css/zhosteno.css")}));
+            Zhad.shadow.appendChild(Zhad.bench);
             Zhad.bench.style.transform="translate(0,0)";
 
-            //this.onOpen();
-            //this.onNavigate();
+
             Zhad.bench.attr("children", this.mkParakeys(Zhad.options.parakeys, {"ghoul":null,"∞ƒ":Zhad.options.glyb}));
 
             let thumbview =elementary.create('div', {"id":"qu", "class":"zhongwen-void climid"});
             Zhad.bench.prepend(thumbview);
 
-            thumbview.oneve('mousemove',function bktmove(){
+            thumbview.oneve('mousemove',function bktmove(event){
                         let xy = Zhad.moxy ={x:event.x,y:event.y}
                             ,root =this.fn('root');
-                        let jump =Array.from(document.elementsFromPoint(xy.x,xy.y))
+                        let jump =Array.from(Zhad.shadow.elementsFromPoint(xy.x,xy.y))
                             .filter(e => e.matches('.qu, .jump')).filter((v,i)=>i==0);
 
                         try{
@@ -93,8 +92,8 @@ class Zhad{
                     if(!boff && Math.max(Math.abs(event.movementX),Math.abs(event.movementY)) >60){
                         thumbview.innerHTML ="";
                     }
-                    else if(boff && (ele=[document.elementFromPoint(event.x,event.y)])
-                                .filter(e=>e.parentNode.matches("[name]")).length){
+                    else if(boff && (ele=[Zhad.shadow.elementFromPoint(event.x,event.y)])
+                                .filter(e=>e.parentElement && e.parentNode.matches("[name]")).length){
                         ele[0].parentNode.dispatchEvent(new MouseEvent('mouseenter', event));
                     }
 
@@ -107,7 +106,6 @@ class Zhad{
             return false;
         }
 
-        //Zhad.invertShiftScroll =Zhad.options.parakeys.invertShiftScro.is(':checked');
         var cfgObserve = {
 
             attributeFilter: ['data-jump']
@@ -124,11 +122,11 @@ class Zhad{
     }//end constructor
 
     syncOptions(context){
-        if(!document.getElementById("hotc"));
+        if(!Zhad.shadow.getElementById("hotc"));
         else if(context.newValue.busyPage)
-          document.getElementById("hotc").classList.add('busy');
+            Zhad.shadow.getElementById("hotc").classList.add('busy');
         else
-          document.getElementById("hotc").classList.remove('busy');
+            Zhad.shadow.getElementById("hotc").classList.remove('busy');
 
         if(context.newValue.showSimplify)
             Zhad.bench.classList.remove('traditional');
@@ -148,6 +146,7 @@ class Zhad{
         Zhad.dsrc =Zhad.options.glyb =null;
         Zhad.paged.length =0;
         //Zhad.onwheel =Zhad.onwheel.bind(0);
+        document.getElementById("extension-zhopad").remove();
     }
     onDetach(){
         document.body.parentNode.offeve("mousedown", "midown")
@@ -171,7 +170,7 @@ class Zhad{
 
                     try{
                         let coords ={"left":evt.x -(Math.floor(bench.offsetWidth /2)) +'px'
-                                    ,"top":evt.y -40 +'px'};
+                                    ,"top":evt.y +(window.scrollY) -40 -Zhad.shadow.host.offsetTop +'px'};
                         if(coords.left.charAt(0) ==='-') coords.left =0;
 
                         bench.style.css(coords);
@@ -206,7 +205,7 @@ class Zhad{
         //event.target is off on android tablet
         let rspan =bench.querySelector('span.radical:first-of-type')
             , onrad =rspan ? parseInt(rspan.getAttribute('data-strokes') || 0) : 0
-            , inzho =Zhad.wheeling || document.elementsFromPoint(event.x, event.y).filter((v)=> v ===bench).length;
+            , inzho =Zhad.wheeling || Zhad.shadow.elementsFromPoint(event.x, event.y).filter((v)=> v ===bench).length;
         try{
             if(delta < 0 && Zhad.spanStrokes ==0 && onrad)
                 return false;
@@ -236,7 +235,7 @@ class Zhad{
 
         try{
             if(delta >0){
-                let ele =inzho ? [document.elementFromPoint(event.x, event.y)]
+                let ele =inzho ? [Zhad.shadow.elementFromPoint(event.x, event.y)]
                         .any(e=>e.matches('.peeker,.flanker,[data-derived="2"]') ? e: 
                                 e.matches('.jump') ? e.parentNode: void 0) :void 0
                     ,jump;
@@ -343,7 +342,7 @@ class Zhad{
     mkParakeys(template, props){
         let parsky =document.createDocumentFragment(), io =this;
 
-        if(!document.querySelectorAll('#parakeys').length){
+        if(!Zhad.shadow.querySelectorAll('#parakeys').length){
             for( var glif in template ){
                 if( parakeys.hasOwnProperty(glif)){
                     let parakey =parakeys[glif];
@@ -385,9 +384,9 @@ class Zhad{
                     }
                 }
             }//end loop
-            let _parakeys =elementary.create('span',{id:"parakeys", class:"once"})
+            let _parakeys =elementary.create('span',{id:"parakeys", class:"once", style:"display:none;"})
             _parakeys.appendChild(parsky);
-    
+
             let btnClose =elementary.create('div', 
                     {class:"parakey",id:"btnclose","data-title":"Close"
                     ,"children":elementary.create('img',{"alt":"●","src": chrome.runtime.getURL("/images/x.png")})})
@@ -629,7 +628,7 @@ class Zhad{
                     Zhad.bench.querySelector('div#qu').classList.remove("nomie");
                 }
             };
-        let eles =document.elementsFromPoint(Zhad.moxy.x,Zhad.moxy.y).slice(0,3).filter(e=>e.tagName !=='SPAN');
+        let eles =Zhad.shadow.elementsFromPoint(Zhad.moxy.x,Zhad.moxy.y).slice(0,3).filter(e=>e.tagName !=='SPAN');
 
         evt =(event||evt);
 
@@ -665,7 +664,7 @@ class Zhad{
                 const  penleave =function(evt){
                         clearInterval(Zhad.tmleave);
                         Zhad.tmleave =setInterval(()=>{
-                            let cell=document.elementsFromPoint(Zhad.moxy.x, Zhad.moxy.y).slice(0,2);
+                            let cell=Zhad.shadow.elementsFromPoint(Zhad.moxy.x, Zhad.moxy.y).slice(0,2);
                             if(cell[0] !==glyph && cell[0].parentNode !==glyph){
                                 clearInterval(Zhad.tmleave);
                                 Zhad.moxy ={x:0,y:0};
@@ -679,9 +678,9 @@ class Zhad{
 
                 lu.childNodes.forEach(qu=>{
                     qu
-                    .oneve('mousedown', function clickqu(){
+                    .oneve('mousedown', function clickqu(event){
                         if( this.parentNode.classList.contains('limbo') ){
-                            document.elementsFromPoint(event.x, event.y).slice(3,3)[0]
+                            docZhad.shadow.ument.elementsFromPoint(event.x, event.y).slice(3,3)[0]
                                 .dispatchEvent(new MouseEvent('mousedown',event));
                         }
                         else if((event.buttons&7) >=3)
@@ -696,7 +695,7 @@ class Zhad{
 
                         })
                     .oneve('mouseleave', penleave)
-                    .oneve('contextmenu',()=>{
+                    .oneve('contextmenu',(event)=>{
                         return ellipsor.stopPropagation(event);
                     });
                 });
@@ -853,7 +852,7 @@ class Zhad{
                 .map(v=>v.matches('.peeker, [data-derived="2"]') ? v : v.parentNode);
         tiles.push(...parakeys);
         tiles.forEach(e=>e
-            .oneve('mousedown', async function(){
+            .oneve('mousedown', async function(event){
                 event.preventDefault();
                 event.stopPropagation();
                 if(this.classList.contains('parakey')){
@@ -880,7 +879,10 @@ class Zhad{
             .oneve('contextmenu', function(evt){
                     return ellipsor.stopPropagation(evt.originalEvent);
                 }));
-        Zhad.bench.querySelector('#parakeys').classList.remove('once');
+        if(parakeys.length){
+            parakeys[0].parentNode.classList.remove('once');
+            parakeys[0].parentNode.style.display ='';
+        }
     }//end wireJump
 
     post(target,r){
@@ -903,7 +905,7 @@ class Zhad{
                     if( txVal.length ===0 ) return;
                 }
                 else if(typeof(spoon) =='function'){
-                    txVal =await spoon(Zhad.options.glyb, sr);
+                    txVal =await spoon(event, Zhad.options.glyb, sr);
                     if(typeof(txVal) === "string");
                     else if(txVal.type){
                         switch(txVal.type){

@@ -47,12 +47,12 @@ async function enableTab() {
                 let hid =muta.oldValue.split(" ").filter(x=>x=='hidden').join('')  ? 1:0;
                 if(hid ^ state){
                     dedupmei.send({"type":"state", "state": hid});
-                    muta.target.parentNode.classList.toggle("paused");
+                    muta.target.classList.toggle("paused");
                 }
             }
         });
-        observer.observe(document.getElementById('zhong'), cfgObserve);
-        //observer.observe(document.getElementById("extension-zhopad").shadowRoot.getElementById("zhong"), cfgObserve);
+        //observer.observe(document.getElementById('zhong'), cfgObserve);
+        observer.observe(Zhad.shadow.getElementById("zhong"), cfgObserve);
     }
 }
 
