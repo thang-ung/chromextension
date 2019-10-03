@@ -6,7 +6,7 @@ const parakeys ={
     "sp":" ", "¶":"\n"
     ,"’ ƒ":/‘$1’/, "” ƒ":/“$1”/
     ,"ghoul": (wo)=>{ let title ='Toggle\nunvisited';
-        return elementary.create('img',{"alt":"●", "class":"simpel", "data-title-left" :title,
+        return elementary.create("img",{"alt":"●", "class":"simpel", "data-title-left" :title,
                     "src":chrome.runtime.getURL("/images/ghoul.png"),
                     "style":"max-width:1.28em;"})
                 .oneve("click", (evt)=>{
@@ -80,13 +80,13 @@ const parakeys ={
     }
 
     ,"∞ƒ": (context)=>{ let title ='Recalibrate';
-            return elementary.create("img", {"alt":"●","data-title-left" :title,
-                        "src" :chrome.runtime.getURL("/images/compass-je.png"),
-                        "style":"max-width:.28em;"})
-                    .oneve('click', (evt, wo)=>{
-                        if(context && context instanceof zhoChat)
-                            return context.rx(true);
-                    });
+        return elementary.create("img", {"alt":"●","data-title-left" :title,
+                    "src" :chrome.runtime.getURL("/images/compass-je.png"),
+                    "style":"max-width:1.28em;"})
+                .oneve("click", (evt)=>{
+                    if(context && context instanceof zhoChat)
+                        return context.rx(true);
+                });
         }
     ,"拇ƒ": ()=>{ let title ='Thumbs\ndata';
         let fn=async (evt, wo)=>{

@@ -366,15 +366,14 @@ class Zhad{
                     }
     
                     else if( parakey.tagName && ['input','img'].indexOf(parakey.tagName.toLowerCase()) >=0 ){
-                        let props={},
+                        let props={"children":parakey},
                             attr =Array.from(parakey.attributes).filter(x=>x.name.indexOf('data-title')>=0);
                         if(attr.length){
                             props[attr[0].name] =attr[0].value;
                             parakey.removeAttribute(attr[0].name);
                         }
                         parsky.appendChild( elementary.create("div", [props
-                                ,"class", 'parakey'+(parakey.classList.contains('dumb') ? ' dumb':'')])
-                                .appendChild(parakey).parentNode );
+                                ,"class", 'parakey'+(parakey.classList.contains('dumb') ? ' dumb':'')]) );
                     }
                     else{
                         parsky.appendChild(elementary.create('div', {"class":"parakey"})
@@ -921,6 +920,8 @@ class Zhad{
                 else if(typeof(spoon)==="string"){
                     txVal =spoon;
                 }
+                else if(event.target.nodeName ==="IMG")
+                    return; //fall to click
                 else{
                     txVal =event.target.textContent.firstchar;
                     Zhad.options.glyb.rank(txVal);
