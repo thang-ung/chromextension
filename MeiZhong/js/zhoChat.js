@@ -1,91 +1,65 @@
-//export
-class zhoChat{
+//export 
+class zhoChat extends dedupmei{
     constructor(){
-    }
-
-    async send(msg){
-        let whilst =new Promise(
-            (resolve) =>{
-                try{
-                    chrome.runtime.sendMessage(msg,
-                    (response)=>{
-                        if(msg.type==="strokes"){
-                            let xmparse =new DOMParser();
-                            msg.response= xmparse
-                                    .parseFromString(response,"text/xml")
-                                    .documentElement;
-
-                        }
-                        else
-                            msg.response = response;
-                        resolve();
-                    });
-                }
-                catch(err){
-                    resolve();
-                    console.log([msg, err]);
-                }
-            });
-        await whilst;
-        return msg.response;
+        super();
     }
 
     get radicals(){
-        return this.send({type:"radicals"});
+        return zhoChat.send({type:"radicals"});
     }
 
     get strokes(){
-        return this.send({type:"strokes"});
+        return zhoChat.send({type:"strokes"});
     }
 
     get qu(){
-        return this.send({type:"qu"});
+        return zhoChat.send({type:"qu"});
     }
 
     get hots(){
-        return this.send({type:"hots"});
+        return zhoChat.send({type:"hots"});
     }
 
     setQu(json){
-        return this.send({type:"qu", qu: json});
+        return zhoChat.send({type:"qu", qu: json});
     }
 
     querySelectorAll(selector){
-        return this.send({type:"querySelectorAll",selector:selector});
+        return zhoChat.send({type:"querySelectorAll",selector:selector});
     }
 
     pageOn(src,limitcount,isRadical){
-        return this.send({type:"page", src: src, limitcount: limitcount, isRadical: isRadical});
+        return zhoChat.send({type:"page", src: src, limitcount: limitcount, isRadical: isRadical});
     }
 
     rx(force){
-        return this.send({type:"rx", "force":force});
+        return zhoChat.send({type:"rx", "force":force});
     }
     rank(glyph, $radical){
-        return this.send({type:"rank", glyph: glyph, "radical": $radical && $radical.length ? $radical[0] : $radical});
+        return zhoChat.send({type:"rank", glyph: glyph, "radical": $radical && $radical.length ? $radical[0] : $radical});
     }
     shelfup(radical){
-        return this.send({type:"shelfup", radical: radical});
+        return zhoChat.send({type:"shelfup", radical: radical});
     }
     onshelf(indices){
-        return this.send({type:"onshelf","indices":indices});
+        return zhoChat.send({type:"onshelf","indices":indices});
     }
 
 
     shelves(){
-        this.send({type:"shelves"});
+        zhoChat.send({type:"shelves"});
         return;
     }
     shelfLengths(indices){
-        return this.send({type:"shelfLengths","indices":indices});
+        return zhoChat.send({type:"shelfLengths","indices":indices});
     }
     glyphRootNode(c){
-        return this.send({type:"glyphRootNode", glyf:c});
+        return zhoChat.send({type:"glyphRootNode", glyf:c});
     }
 
 
     hottops(n){
-        return this.send({type:"hottops", k:n});
+        return zhoChat.send({type:"hottops", k:n});
     }
 
     async hotlines(n, width){

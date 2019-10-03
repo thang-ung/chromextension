@@ -5,31 +5,15 @@
     <meta charset="utf-8"/>
     <link rel="shortcut icon" href="images/each-hi.png"/>
     <link rel="stylesheet" type="text/css" href="css/bootstrap.min.css"/>
+    <link rel="stylesheet" type="text/css" href="css/options.min.css"/>
+    <script src="minified/utils.min.js" type="text/javascript"></script>
     <style>
-        ul > li{align-items:baseline;display:flex;flex-wrap:wrap;flex-direction: row;}
-        ul > li::before{content:"⊕";margin:-.3em 0 0 -1em;position:absolute;color:blue;font-size:1.2em;}
-        #localStorageMemory ~ div{flex-basis:100%;padding-left:1em;}
-        #localStorageMemory:not(:checked) ~ div #ontoStorage{
-            pointer-events: none;
-            opacity:.5;
-        }
-        img#compass{background-color:lightsteelblue;width:2em;border-radius:.4em;margin:0 .2em;}
-        li.noimpl{
-            transform:translate(0,0);
-        }
-        li.noimpl::after{
-            content: "NOT IMPLEMENTED";
-            color:rgba(200,200,200,.4);
-            font-size:2.2em;
-            transform:rotateX(15deg) rotateY(-15deg) perspective(200px);
-            position:absolute;
-            pointer-events:none;
-        }
     </style>
 </head>
 <body>
+
+    <h1 style="text-align:center;">Options for <img src="images/each.png" alt="meizhong"/></h1>
 <div id="root" class="container">
-    <h1 class="my-3">Options for <img src="images/each.png" alt="meizhong"/></h1>
     <ul>
         <li><input type="checkbox" id="permitRemote"/>&nbsp;<label for="permitRemote">permit to download external XML text files over HTTP web.<br>
             to calibrate word prioritisation --upon recalibrate (side button<img id="compass" src="images/compass.png" alt='calibrate'/>)</label></li>
@@ -40,9 +24,9 @@
                 <li>Include top 10 visited glyphs not available onto current page</li>
             </ol></li>
         <li><input type="checkbox" id="showSimplify"/>&nbsp;<label for="showSimplify">Show simplified forms (traditional only is more difficult)</label></li>
-        <li class='noimpl'><input type="checkbox" id="localStorageMemory"/>&nbsp;<label for="localStorageMemory">Memorize outputs into local storage</label>
+        <li><input type="checkbox" id="localStorageMemory"/>&nbsp;<label for="localStorageMemory">Memorize outputs into local storage. <mark>Switch off will clear local storage on restart.</mark></label>
             <div>
-                <label for="ontoStorage">When to memorize:</label>&nbsp;<input id="ontoStorage" DISABLED list="trigger">
+                <label class='noimpl indev' brief="50%" for="ontoStorage">When to memorize:</label>&nbsp;<input id="ontoStorage" DISABLED list="trigger">
                 <datalist id="trigger">
                 <option value="¶">save current line</option>
                 <option value=".">save every word</option>
@@ -50,8 +34,51 @@
                 </datalist>
             </div>
         </li>
-    </ul>
+    </ul><!--
+    <div class="hit-area">
+        <div class="hitbox" id="a-1"></div>
+        <div class="hitbox" id="a-2"></div>
+        <div class="hitbox" id="a-3"></div>
+        <div class="hitbox" id="a-4"></div>
+        <div class="hitbox" id="a-5"></div>
+        <div class="hitbox" id="b-1"></div>
+        <div class="hitbox" id="b-2"></div>
+        <div class="hitbox" id="b-3"></div>
+        <div class="hitbox" id="b-4"></div>
+        <div class="hitbox" id="b-5"></div>
+        <div class="hitbox" id="c-1"></div>
+        <div class="hitbox" id="c-2"></div>
+        <div class="hitbox" id="c-3"></div>
+        <div class="hitbox" id="c-4"></div>
+        <div class="hitbox" id="c-5"></div>
+        <div class="hitbox" id="d-1"></div>
+        <div class="hitbox" id="d-2"></div>
+        <div class="hitbox" id="d-3"></div>
+        <div class="hitbox" id="d-4"></div>
+        <div class="hitbox" id="d-5"></div>
+        <div class="hitbox" id="e-1"></div>
+        <div class="hitbox" id="e-2"></div>
+        <div class="hitbox" id="e-3"></div>
+        <div class="hitbox" id="e-4"></div>
+        <div class="hitbox" id="e-5"></div>
+        <div class="eye">
+            <div class="pupil"></div>
+        </div>
+        <div class="eye">
+            <div class="pupil"></div>
+        </div>
+        <div class="eyelid"></div>
+        <div class="eyelid"></div>
+    </div>-->
 </div>
-<script src="js/options.js" type="text/javascript"></script>
+<section class="move-area">
+  <div class='.container'>
+    <div class="eyelid"></div>
+    <div class="eyelid"></div>
+    <div class='eye'></div>
+    <div class='eye'></div>
+  </div>
+</section>
+<script src="minified/options.min.js" type="text/javascript"></script>
 </body>
 </html>

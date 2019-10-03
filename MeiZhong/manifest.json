@@ -8,20 +8,19 @@
       "default_title": "MeiZhong"
    },
    "content_scripts": [ {
-      "all_frames": true,
-      "css": [ "css/common.css",
+      "all_frames": false,
+      "css": [ "css/common.min.css",
             "css/jstd.css",
             "css/zhosteno.css" ],
-      "js": [ "js/jquery-3.3.1.min.js",
-            "js/jquery-ui.min.js",
-            "js/zhoChat.js",
-            "js/utils.js",
-            "js/flexbug.js",
-            "js/ellipser.js",
-            "js/parakeys.js",
-            "js/zhoChat.js",
+      "js": [ "minified/utils.min.js",
+            "minified/zhoChat.min.js",
+            "minified/flexbug.min.js",
+            "minified/ellipser.min.js",
+            "minified/parakeys.min.js",
+            "js/jquery-3.4.1.slim.min.js",
+            "minified/draggable.min.js",
             "js/stenopad.js",
-            "content.js"
+            "minified/content.min.js"
          ],
       "matches": [ "\u003Call_urls>" ]
    } ],

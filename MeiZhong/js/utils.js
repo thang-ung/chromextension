@@ -1,20 +1,48 @@
 class elementary{
+    static create(tag, attributes ={}){
+        var ele =document.createElement(tag);
+        if(Array.isArray(attributes))
+            ele.attr(...attributes);
+        else if(Object.keys(attributes).length)
+            ele.attr(attributes);
 
-static create(tag, attributes ={}){
-    var ele =document.createElement(tag);
-    if(Array.isArray(attributes))
-        ele.attr(...attributes);
-    else if(Object.keys(attributes).length)
-        ele.attr(attributes);
-
-    return ele;
-}
+        return ele;
+    }
 
 }//end class
 
+class dedupmei{
+    static async send(msg){
+        let whilst =new Promise(
+            (resolve) =>{
+                try{
+                    chrome.runtime.sendMessage(msg,
+                    (response)=>{
+                        if(chrome.runtime.lastError)
+                            console.warn(chrome.runtime.lastError);
+                        else if(msg.type==="strokes"){
+                            let xmparse =new DOMParser();
+                            msg.response= xmparse.parseFromString(response,"text/xml").documentElement;
+
+                        }
+                        else
+                            msg.response = response;
+                        resolve();
+                    });
+                }
+                catch(err){
+                    resolve();
+                    console.log([msg, err]);
+                }
+            });
+        await whilst;
+        return msg.response;
+    }
+}//end dedupmei
+
+
 //export
 function axorray(L,R){
-
     let xor =L.slice(0)
         ,acum ={};
     xor.push(...R)
@@ -195,8 +223,7 @@ if(!Element.prototype.offeve){
                     this.removeEventListener(eventName, recall);
                     this.fn(fn.name || fn, null);
                 }
-                else
-                    console.log(['err -not found',"offeve", fn.name || fn]);
+                // else console.warn(['not found',"offeve", fn.name || fn]);
 
                 return this;
              }

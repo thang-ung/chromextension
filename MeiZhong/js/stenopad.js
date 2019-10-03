@@ -5,12 +5,11 @@
 const peekcount =27, peekmax =33;
 
 let timeGhoul =0
-    ,tmThumb =0
     ,tmr =0;
 
 //export
 class Zhad{
-    static options={
+    static options ={
             tileLimit :83
             ,parakeys: parakeys
             ,glyb: null //new zhong()
@@ -46,6 +45,11 @@ class Zhad{
                 document.body.parentNode.appendChild(root =elementary.create("div", {"id":'extension-zhopad'}));
             }
             root.appendChild(Zhad.bench);
+            // var shadow = root.attachShadow({mode: 'open'});
+            // shadow.appendChild(elementary.create('link',{rel:"stylesheet", type:"text/css", href:chrome.runtime.getURL("css/common.min.css")}));
+            // shadow.appendChild(elementary.create('link',{rel:"stylesheet", type:"text/css", href:chrome.runtime.getURL("css/jstd.css")}));
+            // shadow.appendChild(elementary.create('link',{rel:"stylesheet", type:"text/css", href:chrome.runtime.getURL("css/zhosteno.css")}));
+            // shadow.appendChild(Zhad.bench);
             Zhad.bench.style.transform="translate(0,0)";
 
             //this.onOpen();
@@ -84,16 +88,15 @@ class Zhad{
             Zhad.bench
                 .oneve('mousemove',(event)=>{
                     Zhad.moxy ={"x":event.x,"y":event.y};
-                    let boff =thumbview.matches(".maskout, :empty");
+                    let boff =!thumbview.classList.contains('locked') && thumbview.matches(".maskout, :empty");
                     let ele;
                     if(!boff && Math.max(Math.abs(event.movementX),Math.abs(event.movementY)) >60){
                         thumbview.innerHTML ="";
-                     }
-                     else if(boff && (ele=[document.elementFromPoint(event.x,event.y)])
+                    }
+                    else if(boff && (ele=[document.elementFromPoint(event.x,event.y)])
                                 .filter(e=>e.parentNode.matches("[name]")).length){
-
-                         ele[0].parentNode.dispatchEvent(new MouseEvent('mouseover', event));
-                     }
+                        ele[0].parentNode.dispatchEvent(new MouseEvent('mouseenter', event));
+                    }
 
                     })
                 .oneve('dragover', this.dragOver)
@@ -160,34 +163,36 @@ class Zhad{
                 let bench =Zhad.bench;
 
                 if((buttons =evt.buttons&7) >=3 && !evt.shiftKey){
-                    let event =evt.originalEvent || evt;
                     if(bench.matches(":empty"))
                         bench.classList.remove("hidden");
-                    else if(bench.classList.toggle('hidden'))
+                    else if(bench.classList.toggle('hidden')){
                         return evt.shiftKey || false;	//shift key will enable autoscroll
-
-                    let coords ={"left":event.x -(Math.floor(bench.offsetWidth /2)) +'px'
-                                ,"top":event.y -40 +'px'};
-                    if(coords.left.charAt(0) ==='-') coords.left =0;
-
-                    bench.style.css(coords);
-                    if(bench.matches(":empty") || !bench.querySelector('.ellipser')){
-                        wo.show(0, elevate(Zhad.options.glyb.radicals));
-                        Zhad.options.donce();
                     }
-                    else
-                        return false;
-                    event.preventDefault();
-                    event.stopPropagation();
 
+                    try{
+                        let coords ={"left":evt.x -(Math.floor(bench.offsetWidth /2)) +'px'
+                                    ,"top":evt.y -40 +'px'};
+                        if(coords.left.charAt(0) ==='-') coords.left =0;
+
+                        bench.style.css(coords);
+                        if(bench.matches(":empty") || !bench.querySelector('.ellipser')){
+                            wo.show(0, elevate(Zhad.options.glyb.radicals));
+                            Zhad.options.donce();
+                        }
+                        else
+                            return false;
+                    }
+                    finally{
+                        ellipsor.stopPropagation(evt);
+                    }
                 }//end middle click
 
                 setTimeout(()=>buttons=0,10);
                 return true;
             })
-            .oneve('contextmenu',function ctxmenu(event){
-                if((buttons || event.buttons) &1){
-                    return ellipsor.stopPropagation(event);
+            .oneve('contextmenu',function ctxmenu(evt){
+                if((buttons || evt.buttons) &1){
+                    return ellipsor.stopPropagation(evt);
                 }
             });
     }//end onOpen
@@ -232,7 +237,7 @@ class Zhad{
         try{
             if(delta >0){
                 let ele =inzho ? [document.elementFromPoint(event.x, event.y)]
-                        .any(e=>e.matches('.peeker,.flanker,[data-derived="2"]') ? e:
+                        .any(e=>e.matches('.peeker,.flanker,[data-derived="2"]') ? e: 
                                 e.matches('.jump') ? e.parentNode: void 0) :void 0
                     ,jump;
 
@@ -360,7 +365,7 @@ class Zhad{
                             parsky.appendChild( elementary.create("div",["class",'parakey', props]).appendChild(p).parentNode );
                         }
                     }
-
+    
                     else if( parakey.tagName && ['input','img'].indexOf(parakey.tagName.toLowerCase()) >=0 ){
                         let props={},
                             attr =Array.from(parakey.attributes).filter(x=>x.name.indexOf('data-title')>=0);
@@ -382,12 +387,12 @@ class Zhad{
             }//end loop
             let _parakeys =elementary.create('span',{id:"parakeys", class:"once"})
             _parakeys.appendChild(parsky);
-
-            let btnClose =elementary.create('div',
+    
+            let btnClose =elementary.create('div', 
                     {class:"parakey",id:"btnclose","data-title":"Close"
                     ,"children":elementary.create('img',{"alt":"●","src": chrome.runtime.getURL("/images/x.png")})})
                     .oneve("click", ()=>Zhad.bench.classList.add('hidden'));
-
+    
             return [_parakeys, btnClose];
         }
         return null;
@@ -517,7 +522,6 @@ class Zhad{
             , birds =[]
             , hots =await Zhad.options.glyb.hots;
         let entertile =function(event){
-            clearTimeout(tmThumb);
             let bench =Zhad.bench
                 , tile =this.querySelector('.jump');
 
@@ -526,12 +530,7 @@ class Zhad{
 
                 bench.setAttribute('data-jump', event.target.textContent);
                 if(isRadical && !Zhad.wheeling){
-                    //let rid = Zhad.pageID =Math.random();
-
-                    tmThumb =setTimeout(()=>{
-                        //if(rid ===Zhad.pageID)
-                        tmThumb =wo.mkThumbs(event.target, event);
-                    }, 75);
+                    wo.mkThumbs(event.target, event);
                 }
             };
         for(var k in tiles){
@@ -608,96 +607,110 @@ class Zhad{
         }
     }
 
-    async mkThumbs(glyph, evt, above = false){
+    async mkThumbs(glyph, evt, above = "auto"){
         let bucket =Zhad.bench.querySelector('div#qu');
         if(!glyph){
             bucket.innerHTML ="";
             return 0;
         }
+        await new Promise(resolve=>setTimeout(resolve, 75));
 
-        const qumousemov =function(evt){
-                evt =evt.originalEvent || evt;
+        if(bucket.classList.contains('locked')){
+            // console.warn('locked out');
+            return 0;
+        }
+        //bucket.classList.add('locked');
+
+        const qumousemov =function(event){
                 if(!Zhad.thumbvue);
-                else if(Zhad.thumbvue.left <= evt.x && evt.x <= Zhad.thumbvue.right
-                && Zhad.thumbvue.top <= evt.y && evt.y <= Zhad.thumbvue.bottom ){
+                else if(Zhad.thumbvue.left <= event.x && event.x <= Zhad.thumbvue.right
+                && Zhad.thumbvue.top <= event.y && event.y <= Zhad.thumbvue.bottom ){
                     Zhad.bench.offeve("mousemove", qumousemov);
                     Zhad.bench.querySelector('div#qu').classList.remove("nomie");
                 }
             };
-        let eles =document.elementsFromPoint(Zhad.moxy.x,Zhad.moxy.y).slice(0,3);
+        let eles =document.elementsFromPoint(Zhad.moxy.x,Zhad.moxy.y).slice(0,3).filter(e=>e.tagName !=='SPAN');
 
         evt =(event||evt);
 
-        if(!glyph || glyph.matches(".qu"))
-            return 0;
-        else if(glyph && bucket.matches(":not(:empty)") && bucket.fn('root') ===glyph)
-            bucket.classList.remove('maskout','limbo');
-        else if( eles[0].matches('.qu') ){
-            console.log(glyph.textContent);
-        }
-        else if(eles.find(e=>[e, ...e.children].indexOf(glyph) >=0) && bucket.fn('root', glyph)){
-            bucket.classList.remove("sideleft","narrow");
-            bucket.classList.add('nomie','maskout','limbo');
-            clearTimeout(Zhad.tmThumbme);
-            Zhad.bench.offeve("mousemove", qumousemov);
+        try{
+            if(!glyph || glyph.matches(".qu"))
+                return 0;
+            else if(glyph && bucket.matches(":not(:empty)") && bucket.fn('root') ===glyph)
+                bucket.classList.remove('maskout','limbo');
+            else if( eles[0].matches('.qu') ){
+                console.log(glyph.textContent);
+            }
+            else if(eles.find(e=>[e, ...e.children].indexOf(glyph) >=0) && bucket.fn('root', glyph)){
+                bucket.innerHTML ="";
+                bucket.classList.remove("sideleft","narrow",);
+                bucket.classList.add('nomie','maskout','limbo','locked');
+                clearTimeout(Zhad.tmThumbme);
+                Zhad.bench.offeve("mousemove", qumousemov);
+                glyph.classList.remove('paused');
 
-            let qu = await Zhad.options.glyb.shelfup(glyph.textContent.firstchar)
-                ,ch =glyph.textContent.firstchar;
-            if(!qu || qu.length <=1 || (qu[0]===1 && qu[1]===ch) ) return 0;
+                let qu = await Zhad.options.glyb.shelfup(glyph.textContent.firstchar)
+                    ,ch =glyph.textContent.firstchar;
+                if(!qu || qu.length <=1 || (qu[0]===1 && qu[1]===ch) ) return 0;
 
-            let wo =this
-                ,lu=document.createDocumentFragment();
-            qu.slice(1, Math.min(peekmax, Math.max(qu[0], peekcount)))
-                .sort((l,r)=>l===ch ? -1:0)
-                .forEach((g,i)=>lu.appendChild(elementary.create('div'
-                    , {"class":"qu"+(g==ch ? ' rid':''), "textChild": g})));
+                let wo =this
+                    ,lu=document.createDocumentFragment();
+                qu.slice(1, Math.min(peekmax, Math.max(qu[0], peekcount)))
+                    .sort((l,r)=>l===ch ? -1:0)
+                    .forEach((g,i)=>lu.appendChild(elementary.create('div'
+                        , {"class":"qu"+(g==ch ? ' rid':''), "textChild": g})));
 
-            if(lu.children.length <=15) bucket.classList.add("narrow");
+                if(lu.children.length <=15) bucket.classList.add("narrow");
+                        
+                const  penleave =function(evt){
+                        clearInterval(Zhad.tmleave);
+                        Zhad.tmleave =setInterval(()=>{
+                            let cell=document.elementsFromPoint(Zhad.moxy.x, Zhad.moxy.y).slice(0,2);
+                            if(cell[0] !==glyph && cell[0].parentNode !==glyph){
+                                clearInterval(Zhad.tmleave);
+                                Zhad.moxy ={x:0,y:0};
+                                if(cell[1] ===glyph || cell[1].parentNode ===glyph)
+                                    glyph.classList.add('paused');
+                                bucket.innerHTML ="";
+                            }
+                            }, isNaN(evt) ? 500: evt);
+                    };
+                penleave(600);
 
-            bucket.innerHTML ="";
-            const  penleave =function(evt){
-                    clearInterval(Zhad.tmleave);
-                    Zhad.tmleave =setInterval(()=>{
-                        let cell=[document.elementFromPoint(Zhad.moxy.x, Zhad.moxy.y)];
-                        if(cell.filter(x=>x===bucket.fn('root')).length ===0){
-                            clearInterval(Zhad.tmleave);
-                            Zhad.moxy ={x:0,y:0};
-                            bucket.innerHTML ="";
+                lu.childNodes.forEach(qu=>{
+                    qu
+                    .oneve('mousedown', function clickqu(){
+                        if( this.parentNode.classList.contains('limbo') ){
+                            document.elementsFromPoint(event.x, event.y).slice(3,3)[0]
+                                .dispatchEvent(new MouseEvent('mousedown',event));
                         }
+                        else if((event.buttons&7) >=3)
+                            bucket.innerHTML ="";
+                        else
+                            wo.post()(event);
+                        return ellipsor.stopPropagation(event);
+                        })
+                    .oneve('mouseenter',function quent(){
+                        clearInterval(Zhad.tmleave);
+                        Zhad.bench.setAttribute('data-jump', this.textContent);
 
-                        }, isNaN(evt) ? 500: evt);
-                };
-            penleave(600);
-
-            lu.childNodes.forEach(qu=>{
-                qu
-                .oneve('mousedown', function clickqu(){
-                    if( this.parentNode.classList.contains('limbo') ){
-                        document.elementsFromPoint(event.x, event.y).slice(3,3)[0]
-                            .dispatchEvent(new MouseEvent('mousedown',event));
-                    }
-                    else if((event.buttons&7) >=3)
-                        bucket.innerHTML ="";
-                    else
-                        wo.post()(event);
-                    return ellipsor.stopPropagation(event);
-                    })
-                .oneve('mouseenter',function quent(){
-                    clearInterval(Zhad.tmleave);
-                    Zhad.bench.setAttribute('data-jump', this.textContent);
-
-                    })
-                .oneve('mouseleave', penleave)
-                .oneve('contextmenu',()=>{
-                    return ellipsor.stopPropagation(event);
+                        })
+                    .oneve('mouseleave', penleave)
+                    .oneve('contextmenu',()=>{
+                        return ellipsor.stopPropagation(event);
+                    });
                 });
-            });
 
-            bucket.appendChild(lu);
-            if(this.positionThumbs(glyph))
-                Zhad.tmThumbme =setTimeout(()=>Zhad.bench.oneve("mousemove", qumousemov), 0);
+                bucket.innerHTML ="";
+                bucket.appendChild(lu);
+                if(this.positionThumbs(glyph))
+                    Zhad.tmThumbme =setTimeout(()=>Zhad.bench.oneve("mousemove", qumousemov), 0);
 
-        }//end if
+            }//end if
+        }
+        finally{
+            bucket.classList.remove('locked');
+        }
         return 0;
     }//end mkThumbs
 
@@ -750,7 +763,7 @@ class Zhad{
         let reds =0, uniqueNames =[]
             ,priots = this.priots || Zhad.bench.querySelector('#hotc')
                  || elementary.create("span", {id:"hotc",class:"zhongwen-void thumbed busy"});
-
+                
         priots.innerHTML ="";
         priots.appendChild(ligan);
 
@@ -986,3 +999,5 @@ class Zhad{
             };
     }//end post
 }//end stenozho widget
+
+

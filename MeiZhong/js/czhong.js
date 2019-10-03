@@ -325,7 +325,7 @@ export class Zhong{
 
         this.hots2prio();
     }
-
+    
     hots2prio(){
         this.prio =[];
         for( var glif in this._hots )
