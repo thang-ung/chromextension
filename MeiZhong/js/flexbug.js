@@ -9,7 +9,7 @@ class flexbug{
                     iri =flexCol.offsetLeft;
 
                 if(style.getPropertyValue('direction') =='rtl')
-                    flexCol.style.css({'width': (pads +anchor.offsetWidth + Math.abs(iri -ileft))+'px'});
+                    flexCol.style.css({'width': (pads/2 +anchor.offsetWidth + Math.abs(iri -ileft))+'px'});
                 else
                     flexCol.style.css({'width': (pads +flexCol.offsetWidth +Math.abs(iri -ileft))+'px'});
             }

@@ -12,20 +12,21 @@
 
 let dl ={};
 
-async function enableTab() {
+async function enableTab(props) {
     //console.log([window.parent, window.location.href]);
     let success =await dedupmei.send({"type":"register","op":0});
     if(!success)/* 
         dedupmei.detach() */;
     else if(!dl.stenp){
 
-        dl ={stenp: new Zhad(),
-             chatbox: new zhoChat() };
+        dl ={stenp: new Zhad(props),
+             chatbox: new zhoChat(),
+             state: props };
 
         dl.port =chrome.runtime.connect();
         if(dl.port){
             dl.port.onDisconnect.addListener(()=>{
-                disableTab().remove();
+                disableTab();
                 });
         }
         else console.log('portfail');
@@ -52,12 +53,12 @@ async function enableTab() {
             }
         });
         //observer.observe(document.getElementById('zhong'), cfgObserve);
-        observer.observe(Zhad.shadow.getElementById("zhong"), cfgObserve);
+        observer.observe(Zhad.root.getElementById("zhong"), cfgObserve);
     }
 }
 
-function disableTab() {
-
+function disableTab(){
+    dedupmei.send({"type":"register"});
     dl.stenp.destroy();
     delete dl.stenp;
     delete dl.chatbox;
@@ -67,24 +68,38 @@ function disableTab() {
     return document.getElementById('extension-zhopad');
 }
 
-function onactive(isactive){
+function onactive(isactive, props){
     if(window.parent !== globalThis);
     else if(isactive)
-        enableTab();
+        enableTab(props);
     else if(dl.stenp){
         dedupmei.send({"type":"register"});
         disableTab();
     }
+}
+function bootup(active){
+    chrome.storage.sync.get(['active','context'], (values)=>{
+        onactive(chrome.runtime.lastError || values.active ? true:false, values.context);
+    });
 }
 
 chrome.storage.onChanged.addListener(function(changes, namespace) {
     for(var key in changes) {
         switch(key){
         case 'context':
-            if(dl.stenp instanceof Zhad) dl.stenp.syncOptions(changes[key]);
+            if(dl.stenp instanceof Zhad){
+                let actuals =propxor(changes[key].oldValue, changes[key].newValue);
+
+                if(actuals["shadowIsolate"]){
+                    disableTab();
+                    enableTab(changes[key].newValue);
+                }
+                else
+                    dl.stenp.syncOptions(changes[key]);
+            }
             break;
         case 'active':
-            onactive(changes[key].newValue);
+            bootup(changes[key].newValue);
             break;
         default:
             break;
@@ -92,6 +107,4 @@ chrome.storage.onChanged.addListener(function(changes, namespace) {
     }//end loop
 
   });
-chrome.storage.sync.get(['active'], (values)=>{
-    onactive(chrome.runtime.lastError || values.active ? true:false);
-})
+bootup();

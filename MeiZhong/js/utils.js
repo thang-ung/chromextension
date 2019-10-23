@@ -60,6 +60,19 @@ function axorray(L,R){
     return xor;
 }
 
+function propxor(L,R){
+    let keys =Object.keys(Object.assign(Object.assign({},L),R))
+        ,xor ={};
+    for(let k of keys){
+        if(!isNaN(R[k])){
+            if(L[k] ^ R[k]) xor[k] =L[k] ^ R[k];
+        }
+        else if(L[k] != R[k])
+            xor[k] =R[k];
+    }
+    return xor;
+}
+
 //export
 async function elevate(io){
     io =await io;
@@ -154,7 +167,7 @@ if(!Node.prototype.attr){
                         try{
                             let ary =Array.isArray(attrs[name]) ? attrs[name] :[attrs[name]];
                             for(let e of ary){
-                                children.appendChild(e);
+                                if(e instanceof Node) children.appendChild(e);
                             }
                         }
                         finally{

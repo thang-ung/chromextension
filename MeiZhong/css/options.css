@@ -17,7 +17,7 @@ ul > li::before{content:"⊕";margin:-.3em 0 0 -1em;position:absolute;color:blue
 	pointer-events: none;
 	opacity:.5;
 }
-img#compass{background-color:lightsteelblue;width:2em;border-radius:.4em;margin:0 .2em;}
+img#compass{background-color:initial;width:2em;border-radius:.4em;margin:0 .2em;}
 li.noimpl{
 	transform:translate(0,0);
 }
@@ -161,4 +161,7 @@ li.noimpl{
 	background: #FFFFFF77;
 	border-radius: 50%;
 	content: " ";
+}
+mark{
+	background-color: #ffc10790;
 }

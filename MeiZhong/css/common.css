@@ -36,7 +36,7 @@
 }
 @font-face {
 	font-family:yaHeiUIL;
-	src:url("chrome-extension://__MSG_@@extension_id__/css/fonts/MicrosoftYaHeiUILight.ttf") format("truetype");
+	src:url("chrome-extension://__MSG_@@extension_id__/css/fonts/MicrosoftYaHeiUILight.woff") format("woff");
 }
 @font-face{
 	font-family:t93y;
@@ -56,4 +56,8 @@
 	font-family:jhengHeiUIR;
 	src:url("chrome-extension://__MSG_@@extension_id__/css/fonts/MicrosoftJhengHeiUIRegular.woff") format("woff");
 	font-weight:400;
+}
+@font-face {
+	font-family:cjsongeb;
+	src:url("chrome-extension://__MSG_@@extension_id__/css/fonts/cjsongeb.ttf") format("truetype");
 }

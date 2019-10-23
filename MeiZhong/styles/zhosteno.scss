@@ -23,6 +23,31 @@
     width:41.463em;
     z-index:99;
 
+    ::-webkit-scrollbar-track{
+        background-color:rgba(70, 130, 180, .06);
+    }
+    ::-webkit-scrollbar,
+    ::-webkit-scrollbar-thumb{
+        box-shadow: inset 0 0 20px 4px rgba(140,220,220,0.3);
+        background:transparent;
+    }
+    .ghoul{
+        pointer-events:none;
+        opacity:.06!important;
+    }
+    .submerge{
+        z-index:unset!important;
+    }
+    a > img{
+        width:1.5em;
+    }
+    span{
+        margin:0;
+        padding:0 2px;
+        overflow-x:hidden;
+        &:not(.flexbug){display:inline-block;}
+    }
+
     &.hidden, .hidden{
         display:none!important;
     }
@@ -83,19 +108,20 @@
     ,div:not(.jump):not([data-jump])
     ,span.ellipsed div:not(.jump){opacity:.2;}
     &::before{
+        background-image: linear-gradient(rgba(10,10,10,.96),#101010F0, #0000F000);
         border-radius: .4em;
-        box-shadow: inset 0 0 17px 5px rgba(95,0,205,.9), 3px -4px 10px 3px rgba(95,0,205,.85);
+        box-shadow: inset 0 0 2px 5px rgba(10,10,10,.96), 3px -4px 10px 3px rgba(60,60,60,.65);
         color:rgba(255,215,0,.9);
         content:attr(data-strokes)" strokes";
         font-family:majorMono,"t93y";
         font-size:.9em;
         mix-blend-mode:hard-light;
         position:absolute;
-        right:4em;
+        right:.4em;
         tab-size:12;
         top:-1.18em;
         white-space:pre;
-        width:10em;
+        width:fit-content;
     }
 
     &:hover{
@@ -130,7 +156,7 @@
         overflow:hidden;
     }
     &[israd="1"]{
-        &::before{width:6em;}
+        &::before{width:7.5em;}
         &:not([data-strokes^="10."]) span#hotc > div{
             font-size:.875em;
             margin-right:4px;
@@ -262,7 +288,7 @@
                         min-width: 1.7em;
                         line-height: 1.59em;
                         margin: -0.2em 0 0 0;
-                        padding:2px 2px 0 2px;
+                        padding:2px 0 0 1px;
                         vertical-align: top;
                     }
                 }
@@ -295,7 +321,7 @@
         top:-1.3em;
         width:1.25em;
         opacity:.5;
-        z-index:100;
+        z-index:30;
     }
     #parakeys{
         background-image: radial-gradient(rgba(0,0,0,.7), rgba(128,128,128,.4), transparent, transparent);
@@ -384,7 +410,7 @@
         margin:3px;
         vertical-align:top;
         background-color:white;
-        cursor:url('chrome-extension://__MSG_@@extension_id__/css/cellpaque.png'),url('chrome-extension://__MSG_@@extension_id__/css/cell48.png'),crosshair;
+        cursor:url('chrome-extension://__MSG_@@extension_id__/images/arrow.png'),crosshair;
     }
     #qu > .qu
     , #hotc div.ligan{
@@ -433,7 +459,7 @@
                 mix-blend-mode: normal!important;
                 left:40%;
                 top:-1.2em;
-                z-index:199;
+                z-index:39;
             }
         }
 
@@ -482,7 +508,7 @@
             &:hover{
                 background:darkblue;
                 opacity:initial;
-                z-index:101;
+                z-index:41;
             }
         }
         > .top-ends ~ div:nth-child(6n+4){
@@ -498,6 +524,39 @@
         filter:invert(100%);
         text-shadow: 0px 0px 14px white;
     }
+
+    &.zoom{
+        div[da]:hover::after{
+            content:attr(da);
+            position: absolute;
+            display:block;
+            font-size:2em;
+            left:1em;
+            top:-1em;
+            background:linear-gradient(transparent 5%,#000 40%, transparent);
+            color:white;
+            font-family:zenKaiUni,yaheiUIL;
+            z-index: 49;
+            height:auto;
+            max-height:none;
+            min-height:1em;
+        }
+        div.qu[da]:hover::after{
+            left:unset;
+            right:-.25em;
+            top:-.85em;
+            padding-top:.25em;
+        }
+
+        #qu > div.qu:not(.rid)[da]:hover{
+            background-color:#303030;
+            color:lime;
+            filter:none;
+            mix-blend-mode: normal;
+            text-shadow: none;
+        }
+    }
+
     #qu:hover ~ #hotc
     , #hotc:hover
     , &.flat span#hotc{background:rgba(94, 165, 216, .5);}
@@ -575,7 +634,7 @@
             text-shadow:none!important;
             z-index:5;
             padding-left:.1em;
-            font-family:'zenKaiUni','jhengHeiUIR','microsoft yahei';
+            font-family:'zenKaiUni','yaHeiUIL';
         }
         span[data-strokes] > div[data-strokes]{
             transform:translateX(0);

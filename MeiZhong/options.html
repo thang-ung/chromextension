@@ -16,13 +16,14 @@
 <div id="root" class="container">
     <ul>
         <li><input type="checkbox" id="permitRemote"/>&nbsp;<label for="permitRemote">permit to download external XML text files over HTTP web.<br>
-            to calibrate word prioritisation --upon recalibrate (side button<img id="compass" src="images/compass.png" alt='calibrate'/>)</label></li>
+            to calibrate word prioritisation --upon recalibrate (side button<img id="compass" src="images/compass-je.png" alt='calibrate'/>)</label></li>
         <li><input type="checkbox" id="busyPage"/>&nbsp;<label for="busyPage">show expansion view</label>
             <ol>
                 <li>Expand radicals with three or less thumbs onto page</li>
                 <li>Include unvisited radical's top few thumbs onto page</li>
                 <li>Include top 10 visited glyphs not available onto current page</li>
             </ol></li>
+        <li><input type="checkbox" id="zoom"/>&nbsp;<label for="zoom">show zoomed whilst hovering over tile.</label></li>
         <li><input type="checkbox" id="showSimplify"/>&nbsp;<label for="showSimplify">Show simplified forms (traditional only is more difficult)</label></li>
         <li><input type="checkbox" id="localStorageMemory"/>&nbsp;<label for="localStorageMemory">Memorize outputs into local storage. <mark>Switch off will clear local storage on restart.</mark></label>
             <div>
@@ -34,6 +35,9 @@
                 </datalist>
             </div>
         </li>
+        <li><input type="checkbox" id="shadowIsolate"/>&nbsp;<label for="shadowIsolate">Assures the same look across all sites. **Closes down panel(s).
+            <br/>-Checked <strong>on</strong> makes the panel non-responsive to some running extensions.
+            <br/>-Checked <strong>off</strong> makes the panel visible to extensions and native scripting.</label></li>
     </ul><!--
     <div class="hit-area">
         <div class="hitbox" id="a-1"></div>

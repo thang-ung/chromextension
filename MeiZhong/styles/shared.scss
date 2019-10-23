@@ -36,6 +36,19 @@ div.paused{
         @extend %meiol;
     }
 }
+.flexbug{
+    width:initial;
+    display: inline-flex;
+    flex: 0 0 100%;
+    overflow: hidden;
+    flex-flow: column wrap;
+    &.rfloat{
+        float: right;
+        direction:rtl;
+        flex-wrap:wrap-reverse;
+        align-content:flex-start;
+    }
+}
 
 #extension-zhopad{
     max-height:0;

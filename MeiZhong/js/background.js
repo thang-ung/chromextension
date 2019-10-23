@@ -46,6 +46,8 @@ const __configDefault ={
     ,"localStorageMemory": false
     ,"ontoStorage": "." //default saves per glyph
     ,"permitRemote": false
+    ,"shadowIsolate": true
+    ,"zoom":true
     };
 
 let ctex;
@@ -60,7 +62,11 @@ function resume(tabId){
          ctex.clients ={};
     }
 
-    chrome.runtime.onConnect.addListener(inf=>inf); //required listen
+    chrome.runtime.onConnect.addListener(inf=>{
+        inf.onDisconnect.addListener(inf=> delete ctex.clients[inf.sender.tab.id] );
+        console.log("attached tab %s", inf.sender.tab.id);
+
+    }); //required listen
 
     chrome.browserAction.setBadgeBackgroundColor({'color': [0, 128, 200, 255]});
     chrome.browserAction.setBadgeText({'text': 'On'});
@@ -118,6 +124,8 @@ window.onchange =(evt, dat)=>{   //update from option page
         chrome.storage.sync.set({'context':__options.context});
     }
 };
+
+chrome.runtime.onInstalled.addListener((inf)=>inf.reason==="install" ? window.onchange():0);
 
 chrome.runtime.onMessage.addListener(function(request, sender, response){
     switch(request.type){
