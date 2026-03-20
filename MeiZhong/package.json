@@ -37,7 +37,7 @@
 		"gulp-util": "3.x.x",
 		"gulp-zip": "^5.x.x",
 		"require-dir": "1.x.x",
-		"standard": "^14.3.0",
+		"standard": "^17.1.2",
 		"vinyl-named": "1.x.x",
 		"webpack": "4.x.x",
 		"webpack-stream": "5.x.x",
