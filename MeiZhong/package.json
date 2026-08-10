@@ -25,7 +25,7 @@
 		"gulp-filter": "^6.x.x",
 		"gulp-git": "^2.x.x",
 		"gulp-if": "3.x.x",
-		"gulp-imagemin": "6.x.x",
+		"gulp-imagemin": "9.x.x",
 		"gulp-json-transform": "0.x.x",
 		"gulp-less": "4.x.x",
 		"gulp-livereload": "4.x.x",
